@@ -1,4 +1,9 @@
+Just describe clustering techniques generally. Analysis their constraints and usage in chapter experiment. Compare the results in chapter result.
+
 1. Introduction to K-Means. Not directly applicable. (But we used this in MM while initialization.)
 2. DBSCAN. Could work, need appropriate metric function. Modified edit distance
 
-As described in Chapter XX, all patients data is retrieved from the database directly without any manual labeling. Due to lack of labels, unsupervised should be adopted. Clustering is the task of identifying groups of data points, such that objects in the same group posses higher similarities compared to those in other groups, under a certain metric. The clustering process does not rely on labels but the choice of similarity metrics. Variations in similarity measurement lead to different clustering methods. This chapter introduces two typical methods, K-Means and DBSCAN. Analysis on the performance and constraints of these two methods reveals their application on the anomaly detection problem.
+As described in Chapter XX, all patients data is retrieved from the database directly without any manual labeling. Due to lack of labels, unsupervised should be adopted. Clustering is the task of identifying groups of data points, such that objects in the same group posses higher similarities compared to those in other groups, under a certain metric. The clustering process does not rely on labels but the choice of similarity metrics. Variations in similarity metrics lead to different clustering methods. This chapter introduces two typical methods, K-Means and DBSCAN.
+%Analysis on the performance and constraints of these two methods reveals their application on the anomaly detection problem.
+
+K-Means
