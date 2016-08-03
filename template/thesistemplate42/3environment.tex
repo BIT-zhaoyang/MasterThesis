@@ -1,63 +1,66 @@
-\chapter{Environment}
-\label{chapter:environment}
+\chapter{Clustering Methods}
+\label{chapter:clustering}
 
-A problem instance is rarely totally independent of its environment.
-Most often you need to describe the environment you work in, what
-limits there are and so on. This is a good place to do that. First we
-tell you about the LaTeX working environments and then is an example
-from an thesis written some years ago.
+As described in Chapter XX, all patients data is retrieved from the database directly without any manual labeling. Due to lack of labels, unsupervised learning algorithms should be adopted. Clustering is a collection of unsupervised methods, which identifies groups of data points according to a defined similarity metric, such that objects in the same group posses higher similarities compared to objects in other groups. The clustering process does not rely on labels but the choice of similarity metrics. Variations in similarity metrics lead to different clustering methods.
 
+Applying clustering methods in anomaly detection tasks has been studied.[ref line 7] This chapter introduces two typical methods, K-Means[ref Lloyd, 1982] and DBSCAN[ref line 8]. Problem formulation, solutions, and potential issues are formally described using elaborated notations in following sections. However, analysis on the performance and constraints of these two methods are postponed to Chapter XXX, which reveals their practicality and infeasibility in the previously described anomaly detection problem. (Time, Memory consumption. For K-Means, definition of center.)
 
-\section{LaTeX working environments}
-\label{sec:environments}
+\section{K-Means}
+\label{sec:k-means}
 
-To create \LaTeX\ documents you need two things: a \LaTeX\ environment for
-compiling your documents and a text editor for writing them.
+K-Means is one of the simplest unsupervised algorithm which solves clustering problem. Despite its simplicity, K-Means has gained success in various situations, including anomaly detection[ref line 7], image segmentation and compression[Forsyth and Ponce, 2003], and preprocessing for more complicated algorithms. The method can be formally defined as follow: Given a data set $\{\mathbf{x}_1, ... , \mathbf{x}_N\}$ consisting of $N$ observations in $D$-dimensional space, the object is to partition the data into $K$ groups, by defining a set of $K$ centers $\{\boldsymbol{\mu}_1, ... , \boldsymbol{\mu}_k\}$ in the same space, and assigning each observation to exactly one center point. Each center point represents a prototype associated with the $k^{th}$ cluster.
 
-\subsection{Environment}
+The assignments can be represented using 1-of-$K$ scheme. Then, for each data point $x_n$, a corresponding  $K$-dimensional variable consisting of $K$ binary elements $r_{nk} \in \{0, 1\}$ is introduced. Among these $r_{nk}$, exactly one of them equals 1, which means $\mathbf{x}_{n}$ belongs to the $k^{th}$ cluster. Using this notation, evaluation of the clustering quality can be defined using the object function as follow:
+\begin{equation}	\label{eq:kmeansobj}
+J = \sum_{n=1}^{N}\sum_{k=1}^{K}r_{nk}D(\mathbf{x}_{N} - \boldsymbol{\mu}_{k})
+\end{equation}
+where $D$ is the dissimilarity metric. Common choice of the metric is $\mathit{l}_1$-norm or $\mathit{l}_2$-norm. Mahalanobis distance is also adopted while considering the covariances between the $K$-dimensions[Daniel ref 14]. In the following context, $\mathit{l}_2$-norm is adoped for discussion. 
+ Intuitively, this function can be considered as the distance summation of each point to its corresponding cluster prototype $\boldsymbol{\mu}_k$. The K-Means aims at finding a set of $\boldsymbol{\mu}_k$ which minimizes the object function. Finding the optimal solution for the above object function proves to be NP-Hard[ref line 9]. However, employing heuristic algorithms enables finding converged local optimal solutions. Section XX.1 describes one iterative algorithm, EM. Section XX.2 explores common issues related to K-Means and remedies.
+\subsection{EM Algorithm in K-Means}
 
-Fortunately \LaTeX\ can nowadays be found for any (modern) computer
-environment, be it Linux, Windows, or Macintosh.
-For Linuxes (and other Unix clones) and Macs, I'd recommend \emph{TeX
-Live}~\cite{TeXLive}, which is the current default \LaTeX\ distribution for
-many Linux flavors such as Fedora, Debian, Ubuntu, and Gentoo.
-TeX Live is the replacement for the older \emph{teTeX}, which is
-no longer developed.
+EM algorithm is an iterative algorithm to find local maximum. Each iteration consists of two phases, Expectation and Maximization, which corresponds to minimize the objective function $J$ with respect to $r_{nk}$ and $\boldsymbol{\mu}_{k}$ respectively. In the E(expectation) step, the algorithm minimize $J$ with respect to $r_{nk}$, while keeping the $\boldsymbol{\mu}_{k}$ fixed. Then in the following M(maximization) step, the algorithm minimizes $J$ with respect to $\boldsymbol{\mu}_{k}$, while keeping $r_{nk}$ fixed. 
 
-TeX Live works also for Windows machines (at least according to their web
-site); however, I have used \emph{MiKTeX}~\cite{MiKTeX} and can recommend it
-for Windows. 
-MiKTeX has a nice package manager and automatically fetches missing packages
-for you.
+Considering the optimization in E step, a critical observation of \eqref{eq:kmeansobj} is that \(\mathbf{r}_n\)'s are independent of each other. Thus, optimization on \(\mathbf{r}_n\)'s can be done seperately for each \(n\). The solution is simply setting the \(r_{nk}\) corresponding to the minimum \(\| \mathbf{x}_n - \boldsymbol{\mu}_k \|^2\) to 1.  Intuitively, the algorithm assigns \(\mathbf{x}_n\) to the closest cluster center. Formally, the solution can be written as
+\begin{equation}
+ r_{nk} =
+    \begin{cases}
+        1   & \quad \text{if } k = \operatorname{arg\,min}_j \parallel \mathbf{x}_{n} - \mathbf{\mu}_{j} {\parallel}^2 \\
+        0   & \quad \text{otherwise}
+    \end{cases}
+\end{equation}
 
-\subsection{Editor}
+In the following M step, the above determined \(r_{nk}\) is clamped. Then, \(\boldsymbol{\mu}_k\) appears only in a quadratic term in \(J\). Setting derivatives of \(J\) with respect to \(\boldsymbol{\mu}_k\) to zero, solution formula for \(\boldsymbol{\mu}_k\) can be expressed in following closed form
+\begin{equation}
+\boldsymbol{\mu}_{k} = \frac{\sum_n r_{nk}\mathbf{x}_n}{\sum_n r_{nk}}
+\end{equation}
+This step can be considered as recomputing the cluster prototype by setting \(\boldsymbol{\mu}_k\) to the mean of all points assigned to that cluster. 
 
-You can write \LaTeX\ documents with any text editor you like, but having
-syntax coloring options and such really helps a lot.
-My personal favourite for editing \LaTeX\ is the
-\emph{TeXlipse}~\cite{TeXlipse} plugin for the Eclipse IDE~\cite{Eclipse}. 
-Eclipse is an open-source integrated development environment (IDE) initially
-created for writing Java code, but it currently has support for editing
-languages such as C, C++, JavaScript, XML, HTML, and many more. 
-The TeXlipse plugin allows you to edit and compile \LaTeX\ documents directly
-in Eclipse, and compilation errors and warnings are shown in the Eclipse
-\emph{Problems} dialog so that you can locate and fix the issues easily.
-The plugin also supports reference traversal so that you can locate the source
-line where a label or a citation is defined.
+EM keeps executing these two steps alternatively, until a convergence happens or until number of iterations exceeded a predifined value. Since in each phase, one variable is fixed and updating another variable minimizes the cost function \(J\), convergence is guaranteed. Formal proof on convergence has been studied by MacQueen[ref MacQueen 1967].
 
-Eclipse is an entire development environment, so it may feel a bit heavy-weight
-for editing a document. 
-If you are looking for a more light-weight option, check out TeXworks. 
-TeXworks is a \LaTeX\ editor that is packaged with the newer MiKTeX
-distributions, and it can be acquired from \url{http://www.tug.org/texworks/}.
+The algorithm is illustrated using dataset generated independently from three gaussian distributions in Figure~\ref{fig:EM4KMeans}. In this demonstration, the algorithm takes \(K\) = 3, which is the correct number of components. Before running the first iteration, initialized \(\boldsymbol{\mu}_k\) is required. This initialization is done by choosing three objects from the data set randomly.
+\begin{figure}[ht]
+	\begin{center}
+		\includegraphics[width=\textwidth]{images/EM4KMeans.png}
+		\caption{Illustraion of EM algorithm on K-Means using data generated independently from three gaussian distribution. (a) Original data and corresponding classes. Classes are denoted in different colors. (b) Assignments of each data after the first E step. The yellow diamonds represent the intialized \(\boldsymbol{\mu}_k\). (c) Updated \(\boldsymbol{\mu}_k\) after the M step in the first iteration. (d)-(f) Clustering results after several successive full EM iterations until convergence is met.}
+		\label{fig:EM4KMeans}
+	\end{center}
+\end{figure}
+\subsection{Issues in K-Means}
+Despite the simplicity of K-Means, several underlying issues exists. The first potential is that, how to choose the value for \(K\). In the above illustration, \(K\) was set to 3 which is the correct number of components. However, if \(K\) wasn't set to the correct value, unsatisfied clustering may be generated. Example of this issue is shown in Figure~\ref{fig:KMeansIssue}(a)-(c). To solve this problem, one practical way is drawing graph of the cost function versus value of \(K\), as shown in Figure~\ref{fig:KMeansIssue}(d). Intuitively, when \(K\) is under smaller than the true number of clusters, increasing \(K\) will lead to a huge drop of cost function value. However, when \(K\) has reached or exceeded the correct value, incresing \(K\) leads only small cost function value drop. Thus, number of clusters corresponding to the `elbow' point can be considered as the real number of clusters.
+\begin{figure}[ht]
+	\begin{center}
+		\includegraphics[width=\textwidth]{images/KMeansIncorrectNumber.png}
+		\caption{Issues of K-Means incurred by choosing inappropriate value for \(K\)}
+		\label{fig:KMeansIssue}
+	\end{center}
+\end{figure}
 
-And if you are attached to your \emph{emacs} or \emph{vim} editor, you
-can of course edit your \LaTeX\ documents with them. 
-Emacs at least has syntax coloring and you can compile your document with a key
-binding, so this may be a good option if you prefer working with the standard
-Linux text editors.
+Another issues of K-Means relates to the initialization of \(\boldsymbol{\mu}_k\). Since EM finds only local optimal solutions, a poor initialization could lead to worse clustering result. To avoid this problem, it is practical to run K-Means for several times and choose the best result according to the value of the cost function.
 
-\section{Graphics}
+One more critical issue of K-Means lies in the choice of similarity metric. As mentioned at the beginning of this chapter, variations in similarity metric leads to different clustering methods. Choosing \(l\)-2 norm is convenient in terms of computation, but this choice limits the type of data variables to certain types. Using \(l\)-2 norm on categorical data is inappropriate since no ordering of categorical values exists. Also, this makes computing the mean value a hard problem. To use K-Means on other data types, the similarity metric should be elaborately designed. 
+
+\section{Density Based Clustering Methods}
+This section explores another type of clustering method based on density. One of the most successful method belong to this category is DBSCAN.[ref]
 
 When you use \texttt{pdflatex} to render your thesis, you can include PDF images
 directly, as shown by Figure~\ref{fig:indica_model} below.
@@ -80,7 +83,7 @@ You can also include JPEG or PNG files, as shown by Figure~\ref{fig:eeyore}.
   \end{center}
 \end{figure}
 
-You can create PDF files out of practically anything. 
+You can create PDF files out of practically anything.
 In Windows, you can download PrimoPDF or CutePDF (or some such) and install a
 printing driver so that you can print directly to PDF files from any
 application. There are also tools that allow you to upload documents in common
@@ -101,7 +104,7 @@ If you have PS or EPS files, you can use the tools \texttt{ps2pdf} or
 
 Furthermore, most newer editor programs allow you to save directly to the PDF
 format. For vector editing, you could try Inkscape, which is a new open source
-WYSIWYG vector editor that allows you to save directly to PDF\@. 
+WYSIWYG vector editor that allows you to save directly to PDF\@.
 For graphs, either export/print your graphs from OpenOffice Calc/Microsoft
 Excel to PDF format, and then add them; or use \texttt{gnuplot}, which can
 create PDF files directly (at least the new versions can).
@@ -125,12 +128,12 @@ graphics is shown in Figure~\ref{fig:page-merge}.
 \end{figure}
 
 Another example of graphics created with TikZ is shown in
-Figure~\ref{fig:tikz-examples}. 
-These show how graphs can be drawn and labeled. 
+Figure~\ref{fig:tikz-examples}.
+These show how graphs can be drawn and labeled.
 You can consult the example images and the PGF manual for more examples of what
-kinds figures you can draw with TikZ. 
+kinds figures you can draw with TikZ.
 
-% These definitions are only used in the example images; you will not 
+% These definitions are only used in the example images; you will not
 % need them for your thesis...
 \newlength{\graphdotsize}
 \setlength{\graphdotsize}{1.7pt}
@@ -149,4 +152,3 @@ course report for the graph theory course~\cite{FerryProblem}.}
 \label{fig:tikz-examples}
 \end{center}
 \end{figure}
-

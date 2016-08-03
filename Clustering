@@ -3,7 +3,24 @@ Just describe clustering techniques generally. Analysis their constraints and us
 1. Introduction to K-Means. Not directly applicable. (But we used this in MM while initialization.)
 2. DBSCAN. Could work, need appropriate metric function. Modified edit distance
 
-As described in Chapter XX, all patients data is retrieved from the database directly without any manual labeling. Due to lack of labels, unsupervised should be adopted. Clustering is the task of identifying groups of data points, such that objects in the same group posses higher similarities compared to those in other groups, under a certain metric. The clustering process does not rely on labels but the choice of similarity metrics. Variations in similarity metrics lead to different clustering methods. This chapter introduces two typical methods, K-Means and DBSCAN.
-%Analysis on the performance and constraints of these two methods reveals their application on the anomaly detection problem.
+some reference:
+Using clustering technique in anomaly detection have been studied in He, Z.; Xu, X.; Deng, S. (2003). "Discovering cluster-based local outliers". Pattern Recognition Letters. 24 (9–10): 1641–1650. & Campello, R. J. G. B.; Moulavi, D.; Zimek, A.; Sander, J. (2015). "Hierarchical Density Estimates for Data Clustering, Visualization, and Outlier Detection". ACM Transactions on Knowledge Discovery from Data. Smith, R.,Bivens, A.,Embrechts, M.,Palagiri, C.,and Szymanski, B.2002. Clustering approaches for anomaly based intrusion detection
+Ester, Martin; Kriegel, Hans-Peter; Sander, Jörg; Xu, Xiaowei (1996). Simoudis, Evangelos; Han, Jiawei; Fayyad, Usama M., eds. A density-based algorithm for discovering clusters in large spatial databases with noise. Proceedings of the Second International Conference on Knowledge Discovery and Data Mining (KDD-96). AAAI Press. pp. 226–231.
+Aloise, D.; Deshpande, A.; Hansen, P.; Popat, P. (2009). "NP-hardness of Euclidean sum-of-squares clustering". Machine Learning. 75: 245–249.
+
+Chapter XX, Clustering methods
+
+As described in Chapter XX, all patients data is retrieved from the database directly without any manual labeling. Due to lack of labels, unsupervised should be adopted. Clustering is a collection of unsupervised methods, which identifying groups of data points, such that objects in the same group posses higher similarities compared to objects in other groups, under a certain metric. The clustering process does not rely on labels but the choice of similarity metrics. Variations in similarity metrics lead to different clustering methods. Applying clustering methods in anomaly detection tasks has been studied.[ref line 7] This chapter introduces two typical methods, K-Means[ref Lloyd, 1982] and DBSCAN[ref line 8]. Problem formulation, solutions, and potential issues are formally described using elaborated notations in following sections. However, analysis on the performance and constraints of these two methods are postponed to Chapter XXX, which reveals their infeasibility in the previously described anomaly detection problem. (Time, Memory consumption. For K-Means, definition of center.)
 
 K-Means
+K-Means is one of the simplest unsupervised algorithm which solves clustering problem. Despite its simplicity, K-Means has gained success in various situations, including anomaly detection[ref line 7], image segmentation and compression[Forsyth & Ponce, 2003], and preprocessing for more complicated algorithms. The method can be formally defined as follow: Given a data set $\{\mathbf{x}_1, ... , \mathbf{x}_N\}$ consisting of $N$ observations in $D$-dimensional space, the object is to partition the data into $K$ groups, by defining a set of $K$ centers $\{\mathbf{\mu}_1, ... , \mathbf{\mu}_k\}$ in the same space, and assigning each observation to exactly one center point. Each center point represents a prototype associated with the $k^{th}$ cluster.
+
+The assignments can be represented using $1-of-K$ scheme. Then, for each data point $x_n$, a corresponding  $K$-dimensional variable consisting of $K$ binary elements $r_{nk} \in \{0, 1\}$ is introduced. Among these $r_{nk}$, exactly one of them equals 1, which means $\mathbf{x}_{n}$ belongs to the $k^{th}$ cluster. Using this notation, evaluation of the clustering quality can be defined using the object function as follow:
+$$
+J = \Sum_{n=1}^{N}\Sum_{k=1}^{K}r_{nk}D(mathbf{x}_{N} - mathbf{\mu}_{k})
+$$
+where $D$ is the dissimilarity metric. Common choice of the metric is $\mathfrak{l}_1$-norm or $\mathfrak{l}_2$-norm. Mahalanobis distance is also adopted while considering the covariances between the $K$-dimensions[Daniel ref 14]. Intuitively, this function can be considered as the distance summation of each point to its corresponding cluster prototype $\mathbf{\mu}_k$. The K-Means aims at finding a set of $\mathbf{\mu}_k$ which minimizes the object function.
+
+Finding the optimal solution for the above object function proves to be NP-Hard[ref line 9]. However, employing heuristic algorithms enables finding converged local optimal solutions. Section XX.1 describes one iterative algorithm, EM. Section XX.2 explores common issues related to K-Means and remedies.
+
+EM Algorithm
