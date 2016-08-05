@@ -3,20 +3,23 @@
 
 As described in Chapter XX, all patients data is retrieved from the database directly without any manual labeling. Due to lack of labels, unsupervised learning algorithms should be adopted. Clustering is a collection of unsupervised methods, which identifies groups of data points according to a defined similarity metric, such that objects in the same group posses higher similarities compared to objects in other groups. The clustering process does not rely on labels but the choice of similarity metrics. Variations in similarity metrics lead to different clustering methods.
 
-Applying clustering methods in anomaly detection tasks has been studied.[ref line 7] This chapter introduces two typical methods, K-Means[ref Lloyd, 1982] and DBSCAN[ref line 8]. Problem formulation, solutions, and potential issues are formally described using elaborated notations in following sections. However, analysis on the performance and constraints of these two methods are postponed to Chapter XXX, which reveals their practicality and infeasibility in the previously described anomaly detection problem. (Time, Memory consumption. For K-Means, definition of center.)
+Applying clustering methods in anomaly detection tasks has been studied numerously~\cite{he2003discovering}
+. This chapter introduces two typical methods, K-Means~\cite{lloyd1982least} and DBSCAN~\cite{ester1996density}. Problem formulation, solutions, and potential issues are formally described using elaborated notations in following sections. However, analysis on the performance and constraints of these two methods are postponed to Chapter XXX, which reveals their practicality and infeasibility in the previously described anomaly detection problem. (Time, Memory consumption. For K-Means, definition of center.)
 
 \section{K-Means}
 \label{sec:k-means}
 
-K-Means is one of the simplest unsupervised algorithm which solves clustering problem. Despite its simplicity, K-Means has gained success in various situations, including anomaly detection[ref line 7], image segmentation and compression[Forsyth and Ponce, 2003], and preprocessing for more complicated algorithms. The method can be formally defined as follow: Given a data set $\{\mathbf{x}_1, ... , \mathbf{x}_N\}$ consisting of $N$ observations in $D$-dimensional space, the object is to partition the data into $K$ groups, by defining a set of $K$ centers $\{\boldsymbol{\mu}_1, ... , \boldsymbol{\mu}_k\}$ in the same space, and assigning each observation to exactly one center point. Each center point represents a prototype associated with the $k^{th}$ cluster.
+K-Means is one of the simplest unsupervised algorithm which solves clustering problem. Despite its simplicity, K-Means has gained success in various situations, including anomaly detection~\cite{he2003discovering}~\cite{campello2015hierarchical}, image segmentation and compression~\cite{forsyth2002computer}, and preprocessing for more complicated algorithms. The method can be formally defined as follow: Given a data set $\{\mathbf{x}_1, ... , \mathbf{x}_N\}$ consisting of $N$ observations in $D$-dimensional space, the object is to partition the data into $K$ groups, by defining a set of $K$ centers $\{\boldsymbol{\mu}_1, ... , \boldsymbol{\mu}_k\}$ in the same space, and assigning each observation to exactly one center point. Each center point represents a prototype associated with the $k^{th}$ cluster.
 
 The assignments can be represented using 1-of-$K$ scheme. Then, for each data point $x_n$, a corresponding  $K$-dimensional variable consisting of $K$ binary elements $r_{nk} \in \{0, 1\}$ is introduced. Among these $r_{nk}$, exactly one of them equals 1, which means $\mathbf{x}_{n}$ belongs to the $k^{th}$ cluster. Using this notation, evaluation of the clustering quality can be defined using the object function as follow:
-\begin{equation}	\label{eq:kmeansobj}
-J = \sum_{n=1}^{N}\sum_{k=1}^{K}r_{nk}D(\mathbf{x}_{N} - \boldsymbol{\mu}_{k})
+\begin{equation}	
+	\label{eq:kmeansobj}
+	J = \sum_{n=1}^{N}\sum_{k=1}^{K}r_{nk}D(\mathbf{x}_{N} - \boldsymbol{\mu}_{k})
 \end{equation}
-where $D$ is the dissimilarity metric. Common choice of the metric is $\mathit{l}_1$-norm or $\mathit{l}_2$-norm. Mahalanobis distance is also adopted while considering the covariances between the $K$-dimensions[Daniel ref 14]. In the following context, $\mathit{l}_2$-norm is adoped for discussion. 
- Intuitively, this function can be considered as the distance summation of each point to its corresponding cluster prototype $\boldsymbol{\mu}_k$. The K-Means aims at finding a set of $\boldsymbol{\mu}_k$ which minimizes the object function. Finding the optimal solution for the above object function proves to be NP-Hard[ref line 9]. However, employing heuristic algorithms enables finding converged local optimal solutions. Section XX.1 describes one iterative algorithm, EM. Section XX.2 explores common issues related to K-Means and remedies.
+where $D$ is the dissimilarity metric. Common choice of the metric is $\mathit{l}_1$-norm or $\mathit{l}_2$-norm. Mahalanobis distance is also adopted while considering the covariances between the $K$-dimensions~\cite{davis1986statistics}. In the following context, $\mathit{l}_2$-norm is adoped for discussion. 
+ Intuitively, this function can be considered as the distance summation of each point to its corresponding cluster prototype $\boldsymbol{\mu}_k$. The K-Means aims at finding a set of $\boldsymbol{\mu}_k$ which minimizes the object function. Finding the optimal solution for the above object function proves to be NP-Hard~\cite{aloise2009np}. However, employing heuristic algorithms enables finding converged local optimal solutions. Section~\ref{subsec:EM} describes one iterative algorithm, EM. Section~\ref{subsec:KMeansIssues} explores common issues related to K-Means and remedies.
 \subsection{EM Algorithm in K-Means}
+\label{subsec:EM}
 
 EM algorithm is an iterative algorithm to find local maximum. Each iteration consists of two phases, Expectation and Maximization, which corresponds to minimize the objective function $J$ with respect to $r_{nk}$ and $\boldsymbol{\mu}_{k}$ respectively. In the E(expectation) step, the algorithm minimize $J$ with respect to $r_{nk}$, while keeping the $\boldsymbol{\mu}_{k}$ fixed. Then in the following M(maximization) step, the algorithm minimizes $J$ with respect to $\boldsymbol{\mu}_{k}$, while keeping $r_{nk}$ fixed. 
 
@@ -31,11 +34,12 @@ Considering the optimization in E step, a critical observation of \eqref{eq:kmea
 
 In the following M step, the above determined \(r_{nk}\) is clamped. Then, \(\boldsymbol{\mu}_k\) appears only in a quadratic term in \(J\). Setting derivatives of \(J\) with respect to \(\boldsymbol{\mu}_k\) to zero, solution formula for \(\boldsymbol{\mu}_k\) can be expressed in following closed form
 \begin{equation}
-\boldsymbol{\mu}_{k} = \frac{\sum_n r_{nk}\mathbf{x}_n}{\sum_n r_{nk}}
+	\label{eq:muupdate}
+	\boldsymbol{\mu}_{k} = \frac{\sum_n r_{nk}\mathbf{x}_n}{\sum_n r_{nk}}
 \end{equation}
 This step can be considered as recomputing the cluster prototype by setting \(\boldsymbol{\mu}_k\) to the mean of all points assigned to that cluster. 
 
-EM keeps executing these two steps alternatively, until a convergence happens or until number of iterations exceeded a predifined value. Since in each phase, one variable is fixed and updating another variable minimizes the cost function \(J\), convergence is guaranteed. Formal proof on convergence has been studied by MacQueen[ref MacQueen 1967].
+EM keeps executing these two steps alternatively, until a convergence happens or until number of iterations exceeded a predifined value. Since in each phase, one variable is fixed and updating another variable minimizes the cost function \(J\), convergence is guaranteed. Formal proof on convergence has been studied by MacQueen~\cite{macqueen1967some}.
 
 The algorithm is illustrated using dataset generated independently from three gaussian distributions in Figure~\ref{fig:EM4KMeans}. In this demonstration, the algorithm takes \(K\) = 3, which is the correct number of components. Before running the first iteration, initialized \(\boldsymbol{\mu}_k\) is required. This initialization is done by choosing three objects from the data set randomly.
 \begin{figure}[ht]
@@ -45,7 +49,9 @@ The algorithm is illustrated using dataset generated independently from three ga
 		\label{fig:EM4KMeans}
 	\end{center}
 \end{figure}
+
 \subsection{Issues in K-Means}
+\label{subsec:KMeansIssues}
 Despite the simplicity of K-Means, several underlying issues exists. The first potential is that, how to choose the value for \(K\). In the above illustration, \(K\) was set to 3 which is the correct number of components. However, if \(K\) wasn't set to the correct value, unsatisfied clustering may be generated. Example of this issue is shown in Figure~\ref{fig:KMeansIssue}(a)-(c). To solve this problem, one practical way is drawing graph of the cost function versus value of \(K\), as shown in Figure~\ref{fig:KMeansIssue}(d). Intuitively, when \(K\) is under smaller than the true number of clusters, increasing \(K\) will lead to a huge drop of cost function value. However, when \(K\) has reached or exceeded the correct value, incresing \(K\) leads only small cost function value drop. Thus, number of clusters corresponding to the `elbow' point can be considered as the real number of clusters.
 \begin{figure}[ht]
 	\begin{center}
@@ -59,8 +65,22 @@ Another issues of K-Means relates to the initialization of \(\boldsymbol{\mu}_k\
 
 One more critical issue of K-Means lies in the choice of similarity metric. As mentioned at the beginning of this chapter, variations in similarity metric leads to different clustering methods. Choosing \(l\)-2 norm is convenient in terms of computation, but this choice limits the type of data variables to certain types. Using \(l\)-2 norm on categorical data is inappropriate since no ordering of categorical values exists. Also, this makes computing the mean value a hard problem. To use K-Means on other data types, the similarity metric should be elaborately designed. 
 
+Besides, K-Means tends to form clusters into a convex space. As shown in Figure~\ref{fig:EM4KMeans}(b)-(e), the boundary between two different clusters forms a line lying at the midway and is perpendicular to the line connecting two cluster prototypes. However, a cluster is not necessary to be convext. This also limits the application of K-Means.
+
+Finally, K-Means is also sensitive to noises. As shown in formula \ref{eq:muupdate}, updating \(\boldsymbol{\mu}_k\) involves computing the mean of all data points assigned to that cluster. When noise objects with large deviation from other points in this cluster exist, update of \(\boldsymbol{\mu}_k\) will be strongly affected. 
+
 \section{Density Based Clustering Methods}
-This section explores another type of clustering method based on density. One of the most successful method belong to this category is DBSCAN.[ref]
+This section explores another type of clustering method which forms cluster from the view of density aspect. \textbf{D}ensity-\textbf{B}ased \textbf{S}patial \textbf{C}lustering of \textbf{A}pplications with \textbf{N}oise (DBSCAN)~\cite{ester1996density} considers to be one of the most successful method from this category~\cite{2014timeaward}. Compared to K-Means, DBSCAN posseses following advantages: 1.\ DBSCAN CAN detect clusters of arbitrary shape. 2.\ DBSCAN can determine the number of clusters automatically. 3.\ DBSCAN is robust to noises. 
+
+The following of this chapter is organized as follows. Section~\ref{subsec:DBSCANnotion} introduces preliminary knowledges. Section~\ref{subsec:DBSCANalgorithm} formally describes and analysis the DBSCAN algorithm.
+
+\subsection{Notions of Density in Clusters}
+\label{subsec:DBSCANnotion}
+
+
+\subsection{Algorithm of DBSCAN}
+\label{subsec:DBSCANalgorithm}
+
 
 When you use \texttt{pdflatex} to render your thesis, you can include PDF images
 directly, as shown by Figure~\ref{fig:indica_model} below.
