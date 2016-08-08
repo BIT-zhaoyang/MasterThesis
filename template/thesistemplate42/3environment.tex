@@ -70,9 +70,68 @@ Besides, K-Means tends to form clusters into a convex space. As shown in Figure~
 Finally, K-Means is also sensitive to noises. As shown in formula \ref{eq:muupdate}, updating \(\boldsymbol{\mu}_k\) involves computing the mean of all data points assigned to that cluster. When noise objects with large deviation from other points in this cluster exist, update of \(\boldsymbol{\mu}_k\) will be strongly affected. 
 
 \section{Density Based Clustering Methods}
-This section explores another type of clustering method which forms cluster from the view of density aspect. \textbf{D}ensity-\textbf{B}ased \textbf{S}patial \textbf{C}lustering of \textbf{A}pplications with \textbf{N}oise (DBSCAN)~\cite{ester1996density} considers to be one of the most successful method from this category~\cite{2014timeaward}. Compared to K-Means, DBSCAN posseses following advantages: 1.\ DBSCAN CAN detect clusters of arbitrary shape. 2.\ DBSCAN can determine the number of clusters automatically. 3.\ DBSCAN is robust to noises. 
+This section explores another type of clustering method which forms cluster from the view of density aspect. \textbf{D}ensity-\textbf{B}ased \textbf{S}patial \textbf{C}lustering of \textbf{A}pplications with \textbf{N}oise (DBSCAN)~\cite{ester1996density} considers to be one of the most successful method from this category~\cite{2014timeaward}. Compared to K-Means, DBSCAN posseses following advantages: 1).\ DBSCAN can detect clusters of arbitrary shape. 2).\ DBSCAN can determine the number of clusters automatically. 3).\ DBSCAN is robust to noises. 
 
-The following of this chapter is organized as follows. Section~\ref{subsec:DBSCANnotion} introduces preliminary knowledges. Section~\ref{subsec:DBSCANalgorithm} formally describes and analysis the DBSCAN algorithm.
+The following of this chapter is organized as follows. Section~\ref{subsec:DBSCANDFS} compares and reveals the relation of DBSCAN to a basic graph traversal algorithm \textbf{D}epth \textbf{F}irst \textbf{S}earch(DFS). This section will introduce the critical concept used by DBSCAN which differentiate it with DFS. Section ~\ref{subsec:DBSCANnotion} describe this concept in more details. Section~\ref{subsec:DBSCANalgorithm} discusses practial issues to accelerate DBSCAN.
+
+\subsection{DBSCAN and DFS}
+\label{subsec:DBSCANDFS}
+Before introducing DBSCAN, it would be helpful to review a basic graph traversal algorithm, DFS, which is an algorithm which traverses or visits a graph. In the discussion of this context, the whole process is divided into two procedures \proc{DFS} and \proc{DFS-Visit}. A typical recursive implementation is described as follow. 
+
+\begin{codebox}
+\Procname{$\proc{DFS}(G)$}
+\li \For each vertex $u \in G$
+\li		\Do
+			$\attrib{u}{visited} \gets \const{false}$
+	\End
+\li	\For each vertex $u \in G$
+\li		\Do
+		\If \(\attrib{u}{visited} \isequal \const{false}\)
+\li			\Then
+				$\proc{DFS-Visit}(G, u)$
+		\End
+	\End
+\end{codebox}
+
+\begin{codebox}
+\Procname{$\proc{DFS-Visit}(G, u)$}
+\li	$\attrib{u}{visited} \gets \const{true}$
+\li	\For each vertex $v \in \attrib{G}{Adj}[u]$
+\li	\Do
+		\If	$\attrib{v}{visited} \isequal \const{false} $
+\li			\Then
+				$\proc{DFS-Visit}(G, v)$
+		\End
+	\End
+\end{codebox}
+
+The first two lines in \proc{DFS} initializes the algorithm by setting all nodes to be unvisited. Then, the algorithm traverse vertices in the graph. Once an unvisited node is found, \proc{DFS-Visit} is called. In the procedure \proc{DFS-Visit}, the given node $u$ is labled as visited. If an unvisited child $v$ of $u$ is found, this procedure goes one layer deeper by calling another \proc{DFS-Visit} on $v$. After finishing $\proc{DFS-Visit}(G, u)$, the algorithm backtrack to visit other unvisited children of $u$, which are siblings of $v$.
+
+Assume \proc{DFS} executes on an undirected graph. Each call of $\proc{DFS-Visit}$ on an unvisited node $u$ explores $u$ and all nodes reachable to it. These nodes form a component which disconnects with other components by other runs of $\proc{DFS-Visit}$. Thus, each component can be considered as a cluster. The criterion to form a cluster is that each pair of nodes can reache each other through a path consisting of nodes only in this cluster.
+
+DBSCAN can be seen as an application of DFS. However, DBSCAN differs from standard DFS from its useage of \proc{DFS-Visit}. In standard DFS, the algorithm goes deeper by calling $\proc{DFS-Visit}(G, v)$ on all unvisited children of node $u$. In DBSCAN, however, the algorithm goes deeper if and only if node $u$ satisfies extra conditions. These extra conditions make the component generated from DBSCAN a meaningful cluster viewing from the density side. The pseudocode is shown below. The extra conditions are fully explained in~\ref{subsec:DBSCANnotion}. 
+
+\begin{codebox}
+\Procname{$\proc{DBSCAN}(S, Eps, MinPts)$}
+\li	$\id{idx} \gets 1$
+\li	\For each point $u \in S$
+\li	\Do
+		\If $\attrib{u}{label} \neq \const{nil}$
+\li		\Then	
+			\kw{continue}
+		\End		
+\li			$\id{neighbor} \gets \proc{Region-Query}(u, Eps)$
+\li			\If	$\| \id{neighbor} \| < MinPts $
+\li				\Then
+					$\attrib{u}{label} \gets \const{noise}$
+\li			\Else
+\li				$\proc{Expand-Cluster}(u, \id{neibhbor}, idx, Eps, MinPts)$
+\li				$\id{idx} \gets \id{idx} + 1$
+			\End
+	\End
+\end{codebox}
+
+
 
 \subsection{Notions of Density in Clusters}
 \label{subsec:DBSCANnotion}
