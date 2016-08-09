@@ -42,7 +42,8 @@ This step can be considered as recomputing the cluster prototype by setting \(\b
 EM keeps executing these two steps alternatively, until a convergence happens or until number of iterations exceeded a predifined value. Since in each phase, one variable is fixed and updating another variable minimizes the cost function \(J\), convergence is guaranteed. Formal proof on convergence has been studied by MacQueen~\cite{macqueen1967some}.
 
 The algorithm is illustrated using dataset generated independently from three gaussian distributions in Figure~\ref{fig:EM4KMeans}. In this demonstration, the algorithm takes \(K\) = 3, which is the correct number of components. Before running the first iteration, initialized \(\boldsymbol{\mu}_k\) is required. This initialization is done by choosing three objects from the data set randomly.
-\begin{figure}[ht]
+
+\begin{figure}
 	\begin{center}
 		\includegraphics[width=\textwidth]{images/EM4KMeans.png}
 		\caption{Illustraion of EM algorithm on K-Means using data generated independently from three gaussian distribution. (a) Original data and corresponding classes. Classes are denoted in different colors. (b) Assignments of each data after the first E step. The yellow diamonds represent the intialized \(\boldsymbol{\mu}_k\). (c) Updated \(\boldsymbol{\mu}_k\) after the M step in the first iteration. (d)-(f) Clustering results after several successive full EM iterations until convergence is met.}
@@ -53,7 +54,8 @@ The algorithm is illustrated using dataset generated independently from three ga
 \subsection{Issues in K-Means}
 \label{subsec:KMeansIssues}
 Despite the simplicity of K-Means, several underlying issues exists. The first potential is that, how to choose the value for \(K\). In the above illustration, \(K\) was set to 3 which is the correct number of components. However, if \(K\) wasn't set to the correct value, unsatisfied clustering may be generated. Example of this issue is shown in Figure~\ref{fig:KMeansIssue}(a)-(c). To solve this problem, one practical way is drawing graph of the cost function versus value of \(K\), as shown in Figure~\ref{fig:KMeansIssue}(d). Intuitively, when \(K\) is under smaller than the true number of clusters, increasing \(K\) will lead to a huge drop of cost function value. However, when \(K\) has reached or exceeded the correct value, incresing \(K\) leads only small cost function value drop. Thus, number of clusters corresponding to the `elbow' point can be considered as the real number of clusters.
-\begin{figure}[ht]
+
+\begin{figure}
 	\begin{center}
 		\includegraphics[width=\textwidth]{images/KMeansIncorrectNumber.png}
 		\caption{Issues of K-Means incurred by choosing inappropriate value for \(K\)}
@@ -109,33 +111,67 @@ The first two lines in \proc{DFS} initializes the algorithm by setting all nodes
 
 Assume \proc{DFS} executes on an undirected graph. Each call of $\proc{DFS-Visit}$ on an unvisited node $u$ explores $u$ and all nodes reachable to it. These nodes form a component which disconnects with other components by other runs of $\proc{DFS-Visit}$. Thus, each component can be considered as a cluster. The criterion to form a cluster is that each pair of nodes can reache each other through a path consisting of nodes only in this cluster.
 
-DBSCAN can be seen as an application of DFS. However, DBSCAN differs from standard DFS from its useage of \proc{DFS-Visit}. In standard DFS, the algorithm goes deeper by calling $\proc{DFS-Visit}(G, v)$ on all unvisited children of node $u$. In DBSCAN, however, the algorithm goes deeper if and only if node $u$ satisfies extra conditions. These extra conditions make the component generated from DBSCAN a meaningful cluster viewing from the density side. The pseudocode is shown below. The extra conditions are fully explained in~\ref{subsec:DBSCANnotion}. 
+DBSCAN can be seen as an application of DFS. However, DBSCAN differs from standard DFS from its useage of \proc{DFS-Visit}. In standard DFS, the algorithm goes deeper by calling $\proc{DFS-Visit}(G, v)$ on all unvisited children of node $u$. In DBSCAN, however, the algorithm goes deeper if and only if node $u$ satisfies extra conditions, which are specified by two user given value $Eps$ and $MinPts$. These extra conditions make the component generated from DBSCAN a meaningful cluster viewing from the density side. The pseudocode is shown below.
 
 \begin{codebox}
 \Procname{$\proc{DBSCAN}(S, Eps, MinPts)$}
-\li	$\id{idx} \gets 1$
+\li	$\id{ClusterId} \gets 1$
 \li	\For each point $u \in S$
 \li	\Do
 		\If $\attrib{u}{label} \neq \const{nil}$
 \li		\Then	
 			\kw{continue}
 		\End		
-\li			$\id{neighbor} \gets \proc{Region-Query}(u, Eps)$
-\li			\If	$\| \id{neighbor} \| < MinPts $
+\li			$\attrib{u}{neighbor} \gets \proc{Region-Query}(u, Eps)$
+\li			\If	$\| \attrib{u}{neighbor} \| < MinPts $
 \li				\Then
 					$\attrib{u}{label} \gets \const{noise}$
 \li			\Else
-\li				$\proc{Expand-Cluster}(u, \id{neibhbor}, idx, Eps, MinPts)$
-\li				$\id{idx} \gets \id{idx} + 1$
+\li				$\proc{Expand-Cluster}(u, \id{ClusterId}, Eps, MinPts)$
+\li				$\id{ClusterId} \gets \id{ClusterId} + 1$
 			\End
 	\End
 \end{codebox}
 
+\begin{codebox}
+\Procname{$\proc{Expand-Cluster}(u, \id{ClusterId}, Eps, MinPts)$}
+\li	$\attrib{u}{label} \gets \id{ClusterId}$
+\li	\For each point $v \in \attrib{u}{neighbor}$
+\li	\Do
+		\If $\attrib{v}{label} \isequal \const{nil}$
+\li		\Then
+			$\attrib{v}{label} \gets \id{ClusterId}$
+\li			$\attrib{v}{neighbor} \gets \proc{Region-Query}(v, Eps)$
+\li				\If	$\| \attrib{v}{neighbor} \| < MinPts $
+\li				\Then
+					$\proc{Expand-Cluster}(v, \id{ClusterId}, Eps, MinPts)$
+				\End
+\li		\ElseIf $\attrib{v}{label} \isequal \const{noise}$
+\li		\Then
+			$\attrib{v}{label} \gets \id{ClusterId}$
+		\End
+	\End
+\end{codebox}
 
+Similiar with DFS traverse, DBSCAN clustering is also divided into two procedures, \proc{DBSCAN} and \proc{Expand-Cluster}. \proc{DBSCAN} functions as a wrapper function in the same way as \proc{DFS}. This procedure goes through each point in the data set $S$. If the current point $u$ has been visited, the procedure skips it. Otherwise, further process continues. However, unlike calling \proc{DFS-Visit} on every unvisited $u$ unconditionaly as \proc{DFS} does, in \proc{DBSCAN}, another procedure \proc{Expand-Cluster} is called if and only if $u$ has sufficient number of neighbors in a given range $Eps$. $\proc{Region-Query}(u, Eps)$ returns all the neighbors of $u$ with a distance no further than $Eps$. This is the extra condition mentioned earlier. Similiarly, this condition is also checked in \proc{Expland-Cluster} at line 6, as opposed to \proc{DFS-Visit}. Besides these two places, the rest of the two algorithms are the same. Details of extra conditions are fully explained in next section. 
 
 \subsection{Notions of Density in Clusters}
 \label{subsec:DBSCANnotion}
+From the view of density, points in a space can be classified into three categories: core points, border points, and outliers/noise. The classification criterion on a point $u$ bases on the size of its $\id{Eps-neighborhood}$, denoted as $N(u;Eps)$. The $N(u;Eps)$ represents the collection of all points whose distances to $u$ are within $Eps$, which is specified by user. More formally, $N(u;Eps) = \{v\mid dist(u, v) < Eps\}$. 
 
+Based on above definition, a point $u$ is a core point if and only if $\|N(u;Eps)\| \geq MinPts$, where both $Eps$ and $MinPts$ are user specified. After defining core points, it is relatively easy to define the other two categories. A border point $v$ is a neighbor point of a core point $u$, but $v$ is not a core point itself. Formally, $\|N(u;Eps)\| < MinPts$, and $v \in N(u;Eps)$, where $\|N(u;Eps)\| \geq MinPts$. For a outlier, it's a point $v$ which is neither a core point itself nor a neighbor point of a core point. An example graph is showing in Fig~\ref{fig:DBSCANConcept}.
+
+\begin{figure}[ht]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{images/DBSCAN-Illustration.png}
+		\caption{Illustration of core points(red), border points(yellow), and outlier(blue)~\cite{wiki:DBSCAN}. In the illustration, $MinPts = 4$, $Eps$ is the radius of those circles.}
+		\label{fig:DBSCANConcept}
+	\end{center}
+\end{figure}
+
+As show in the figure, red points are core points since in each red circle, there are at least 4 points(including the center point). While for the yellow point, they don't have enough points in their circles, but they embed in one of the red circles. Thus, they are border points. As for the blue point, it has neither enough point in the blue cirle nor is in any red circle. Thus, the blue point is an outlier/noise.
+
+These definition reveals the assumption and theory of DBSCAN. DBSCAN assumes that, 
 
 \subsection{Algorithm of DBSCAN}
 \label{subsec:DBSCANalgorithm}
