@@ -74,7 +74,7 @@ Finally, K-Means is also sensitive to noises. As shown in formula \ref{eq:muupda
 \section{Density Based Clustering Methods}
 This section explores another type of clustering method which forms cluster from the view of density aspect. \textbf{D}ensity-\textbf{B}ased \textbf{S}patial \textbf{C}lustering of \textbf{A}pplications with \textbf{N}oise (DBSCAN)~\cite{ester1996density} considers to be one of the most successful method from this category~\cite{2014timeaward}. Compared to K-Means, DBSCAN posseses following advantages: 1).\ DBSCAN can detect clusters of arbitrary shape. 2).\ DBSCAN can determine the number of clusters automatically. 3).\ DBSCAN is robust to noises. 
 
-The following of this chapter is organized as follows. Section~\ref{subsec:DBSCANDFS} compares and reveals the relation of DBSCAN to a basic graph traversal algorithm \textbf{D}epth \textbf{F}irst \textbf{S}earch(DFS). This section will introduce the critical concept used by DBSCAN which differentiate it with DFS. Section ~\ref{subsec:DBSCANnotion} describe this concept in more details. Section~\ref{subsec:DBSCANalgorithm} discusses practial issues to accelerate DBSCAN.
+The following of this chapter is organized as follows. Section~\ref{subsec:DBSCANDFS} compares and reveals the relation of DBSCAN to a basic graph traversal algorithm \textbf{D}epth \textbf{F}irst \textbf{S}earch(DFS). This section will introduce the critical concept used by DBSCAN which differentiate it with DFS. Section ~\ref{subsec:DBSCANnotion} describe this concept in more details. Section~\ref{subsec:DBSCANalgorithm} compares DBSCAN and K-Means, and discusses practical issues of DBSCAN.
 
 \subsection{DBSCAN and DFS}
 \label{subsec:DBSCANDFS}
@@ -169,101 +169,120 @@ Based on above definition, a point $u$ is a core point if and only if $\|N(u;Eps
 	\end{center}
 \end{figure}
 
-As show in the figure, red points are core points since in each red circle, there are at least 4 points(including the center point). While for the yellow point, they don't have enough points in their circles, but they embed in one of the red circles. Thus, they are border points. As for the blue point, it has neither enough point in the blue cirle nor is in any red circle. Thus, the blue point is an outlier/noise.
+As show in the figure, red points are core points since in each red circle, there are at least 4 points(including the center point). While for the yellow point, they don't have enough points in their circles, but they embed in one of the red circles. Thus, they are border points. As for the blue point, it has neither enough point in the blue cirle nor is in any red circle. Thus, the blue point an outlier/noise.
 
-These definition reveals the assumption and theory of DBSCAN. DBSCAN assumes that, 
+These definitions reveal the assumption and theory of DBSCAN. DBSCAN assumes that, each cluster consists of two types of points, core points and border points. Core points form inner denser areas compared to spaces outside of clusters. Border points form a slightly sparser areas surrouding the inner core ares, but still the density is higher than spaces between different clusters, possesed by noise. In DBSCAN, the density of an area is measured by the number of points centered at $u$ within an area specified by the given radius $Eps$. If there are at least $MinPts$ points, this area is considered to be a dense area. Thus, this area is part of a cluster. In the procedure \proc{Expand-Cluster}, the algorithm will explore the whole dense area and less dense border area belonging to the same cluster. Each call of \proc{Expand-Cluster} visits a different cluster. Thus, when the whole procedure \proc{DBSCAN} finishes, different clusters are formed.
 
-\subsection{Algorithm of DBSCAN}
+\subsection{Analysis of DBSCAN}
 \label{subsec:DBSCANalgorithm}
+DBSCAN applies to a broader range of problems comapred to K-Means. In K-Means, one of the obstacle is to compute the mean value. DBSCAN doesn't have this problem as long as the distance between points is computable. This enables DBSCAN to use more compliated distance measurement, such as edit distance, which is very useful in dealing with strings. Another advantage of DBSCAN is its robustness to noises. As mentioned in section~\ref{subsec:KMeansIssues}, the mean value will be heavily interfere by noises/outliers. In contrast, DBSCAN has a notion noises and it is able to spot these outliers, which is a core problem of this thesis. Finally, the most important advantage of DBSCAN is that it can find arbitrarily shaped clusters. It can even seperate a cluster completely surrounded by a different cluster. An example is shown in Fig~\ref{fig:KMeansDBSCAN}.
 
-
-When you use \texttt{pdflatex} to render your thesis, you can include PDF images
-directly, as shown by Figure~\ref{fig:indica_model} below.
-
-\begin{figure}[ht]
-  \begin{center}
-    \includegraphics[width=\textwidth]{images/indica_model.pdf}
-    \caption{The INDICA two-layered value chain model.}
-    \label{fig:indica_model}
-  \end{center}
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=\textwidth]{images/KMeansDBSCAN.png}
+		\caption{A Comparison of K-Means and DBSCAN. In the diagram, two datasets ``circles'' and ``moons'' are used. Compared to K-Means, DBSCAN gives more reasonable clustering results on these two irregular shaped datasets.}
+		\label{fig:KMeansDBSCAN}
+	\end{center}
 \end{figure}
 
-You can also include JPEG or PNG files, as shown by Figure~\ref{fig:eeyore}.
+Simliar to K-Means, DBSCAN also requires user specified parameters. To get the optimal result, a careful choice of these parameters is needed. Finding the appropriate parameter can be achieved in the similiar way by finding the elbow point as mentioned in section~\ref{subsec:KMeansIssues}. The user can pick a number for $MinPts$ first. Then, for each point, the distance from its $kth$ nearest neighbor is computed. After sorting these distances in descending order and plot them, a graph called \id{sorted k-dist graph} can be obtained. This graph reveals insights about the density distribution of the whole dataset reflected in how the \id{k-dist} varies. Then the $Eps$ can be set to the value corresponding to the elbow point. This heuristic works well as the graph won't differ too much for $k > 4$. An illustration of this approach is shown in Figure~\ref{fig:DBSCANParameter}.~\cite{ester1996density}
 
-\begin{figure}[ht]
-  \begin{center}
-    \includegraphics[width=9cm]{images/ihaa.jpg}
-    \caption{Eeyore, or Ihaa, a very sad donkey.}
-    \label{fig:eeyore}
-  \end{center}
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=\textwidth]{images/DBSCANParameter.png}
+		\caption{Illustration of the heuristic parameter choosing approach for DBSCAN. (a)-(c) illustrates clustering results obtained by using different $Eps$. Each cluster is painted with a different color. Core points are represented using larger circles while border points are represented using smaller circles. Black small circles represent outliers. In figure (a), very few points are labeled as noise and the bottom two clusters are not distinguished. In figure (b), the result is more reasonable and can be considered as optimal. In figure (c), too many points are labeled as noise and more than 3 clusters are reported. According to the \id{k-dist graph} shown in (d), 0.2 should be the best value for $Eps$, which corresponds to the result in figure (b).}
+		\label{fig:DBSCANParameter}
+	\end{center}
 \end{figure}
 
-You can create PDF files out of practically anything.
-In Windows, you can download PrimoPDF or CutePDF (or some such) and install a
-printing driver so that you can print directly to PDF files from any
-application. There are also tools that allow you to upload documents in common
-file formats and convert them to the PDF format.
-If you have PS or EPS files, you can use the tools \texttt{ps2pdf} or
-\texttt{epspdf} to convert your PS and EPS files to PDF\@.
 
-% Comment: If your sentence ends in a capital letter, like here, you should
-% write \@ before the period; otherwise LaTeX will assume that this is not
-% really an end of the sentence and will not put a large enough space after the
-% period. That is, LaTeX assumes that you are (for example), enumerating using
-% capital roman numerals, like I. do something, II. do something else. In this
-% case, the periods do not end the sentence.
-
-% Similarly, if you do need a normal space after a period (instead of
-% the longer sentence separator), use \  (backslash and space) after the
-% period. Like so: a.\ first item, b.\ second item.
-
-Furthermore, most newer editor programs allow you to save directly to the PDF
-format. For vector editing, you could try Inkscape, which is a new open source
-WYSIWYG vector editor that allows you to save directly to PDF\@.
-For graphs, either export/print your graphs from OpenOffice Calc/Microsoft
-Excel to PDF format, and then add them; or use \texttt{gnuplot}, which can
-create PDF files directly (at least the new versions can).
-The terminal type is \emph{pdf}, so the first line of your plot file should be
-something like \texttt{set term pdf \ldots}.
-
-To get the most professional-looking graphics, you can encode them using the
-TikZ package (TikZ is a frontend for the PGF graphics formatting system).
-You can create practically any kind of technical images with TikZ, but it has a
-rather steep learning curve. Locate the manual (\texttt{pgfmanual.pdf}) from
-your \LaTeX\ distribution and check it out. An example of TikZ-generated
-graphics is shown in Figure~\ref{fig:page-merge}.
-
-\begin{figure}[ht]
-  \begin{center}
-    \input{images/page-merge.tex}
-    \caption{Example of a multiversion database page merge. This figure has
-    been taken from the PhD thesis of Haapasalo~\cite{HaapasaloThesis}.}
-    \label{fig:page-merge}
-  \end{center}
-\end{figure}
-
-Another example of graphics created with TikZ is shown in
-Figure~\ref{fig:tikz-examples}.
-These show how graphs can be drawn and labeled.
-You can consult the example images and the PGF manual for more examples of what
-kinds figures you can draw with TikZ.
-
-% These definitions are only used in the example images; you will not
-% need them for your thesis...
-\newlength{\graphdotsize}
-\setlength{\graphdotsize}{1.7pt}
-\newlength{\graphgridsize}
-\setlength{\graphgridsize}{1.2em}
-\begin{figure}[ht]
-\begin{center}
-\subfigure[Examples of obstruction graphs for the Ferry Problem]{
-  \input{images/obstruction-grouped.tex}
-}
-\subfigure[Examples of star graphs]{
-  \input{images/general-star-graphs.tex}
-}
-\caption{Examples of graphs draw with TikZ. These figures have been taken from a
-course report for the graph theory course~\cite{FerryProblem}.}
-\label{fig:tikz-examples}
-\end{center}
-\end{figure}
+%When you use \texttt{pdflatex} to render your thesis, you can include PDF images
+%directly, as shown by Figure~\ref{fig:indica_model} below.
+%
+%\begin{figure}[ht]
+%  \begin{center}
+%    \includegraphics[width=\textwidth]{images/indica_model.pdf}
+%    \caption{The INDICA two-layered value chain model.}
+%    \label{fig:indica_model}
+%  \end{center}
+%\end{figure}
+%
+%You can also include JPEG or PNG files, as shown by Figure~\ref{fig:eeyore}.
+%
+%\begin{figure}[ht]
+%  \begin{center}
+%    \includegraphics[width=9cm]{images/ihaa.jpg}
+%    \caption{Eeyore, or Ihaa, a very sad donkey.}
+%    \label{fig:eeyore}
+%  \end{center}
+%\end{figure}
+%
+%You can create PDF files out of practically anything.
+%In Windows, you can download PrimoPDF or CutePDF (or some such) and install a
+%printing driver so that you can print directly to PDF files from any
+%application. There are also tools that allow you to upload documents in common
+%file formats and convert them to the PDF format.
+%If you have PS or EPS files, you can use the tools \texttt{ps2pdf} or
+%\texttt{epspdf} to convert your PS and EPS files to PDF\@.
+%
+%% Comment: If your sentence ends in a capital letter, like here, you should
+%% write \@ before the period; otherwise LaTeX will assume that this is not
+%% really an end of the sentence and will not put a large enough space after the
+%% period. That is, LaTeX assumes that you are (for example), enumerating using
+%% capital roman numerals, like I. do something, II. do something else. In this
+%% case, the periods do not end the sentence.
+%
+%% Similarly, if you do need a normal space after a period (instead of
+%% the longer sentence separator), use \  (backslash and space) after the
+%% period. Like so: a.\ first item, b.\ second item.
+%
+%Furthermore, most newer editor programs allow you to save directly to the PDF
+%format. For vector editing, you could try Inkscape, which is a new open source
+%WYSIWYG vector editor that allows you to save directly to PDF\@.
+%For graphs, either export/print your graphs from OpenOffice Calc/Microsoft
+%Excel to PDF format, and then add them; or use \texttt{gnuplot}, which can
+%create PDF files directly (at least the new versions can).
+%The terminal type is \emph{pdf}, so the first line of your plot file should be
+%something like \texttt{set term pdf \ldots}.
+%
+%To get the most professional-looking graphics, you can encode them using the
+%TikZ package (TikZ is a frontend for the PGF graphics formatting system).
+%You can create practically any kind of technical images with TikZ, but it has a
+%rather steep learning curve. Locate the manual (\texttt{pgfmanual.pdf}) from
+%your \LaTeX\ distribution and check it out. An example of TikZ-generated
+%graphics is shown in Figure~\ref{fig:page-merge}.
+%
+%\begin{figure}[ht]
+%  \begin{center}
+%    \input{images/page-merge.tex}
+%    \caption{Example of a multiversion database page merge. This figure has
+%    been taken from the PhD thesis of Haapasalo~\cite{HaapasaloThesis}.}
+%    \label{fig:page-merge}
+%  \end{center}
+%\end{figure}
+%
+%Another example of graphics created with TikZ is shown in
+%Figure~\ref{fig:tikz-examples}.
+%These show how graphs can be drawn and labeled.
+%You can consult the example images and the PGF manual for more examples of what
+%kinds figures you can draw with TikZ.
+%
+%% These definitions are only used in the example images; you will not
+%% need them for your thesis...
+%\newlength{\graphdotsize}
+%\setlength{\graphdotsize}{1.7pt}
+%\newlength{\graphgridsize}
+%\setlength{\graphgridsize}{1.2em}
+%\begin{figure}[ht]
+%\begin{center}
+%\subfigure[Examples of obstruction graphs for the Ferry Problem]{
+%  \input{images/obstruction-grouped.tex}
+%}
+%\subfigure[Examples of star graphs]{
+%  \input{images/general-star-graphs.tex}
+%}
+%\caption{Examples of graphs draw with TikZ. These figures have been taken from a
+%course report for the graph theory course~\cite{FerryProblem}.}
+%\label{fig:tikz-examples}
+%\end{center}
+%\end{figure}
