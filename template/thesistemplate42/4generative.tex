@@ -9,17 +9,51 @@ As described in Chapter~\ref{chapter:background}, the patients visits can be see
 \section{Discrete Markov Process}
 \label{sec:MM}
 Consider a system having \(N\) distinct states \(S_1, S_2, \cdots, X_N\). At any time, the system will be in one of these states. After a given time period \(t\), a series obeservation \(x_1, x_2, \cdots, x_t\) can be obtained. According to the prodcut rule of probability, the joint distribution for this sequence of observation is
-\[
-p(x_1, x_2, \cdots, x_t) = \prod_{i = 2}^{t} p(x_i \mid x_1, \cdots, x_{i-1})
-\]
-The above relations between the observations can be represented graphically in Fig~\ref{fig:MM}.
-\begin{figure}
+\begin{equation}
+	p(x_1, x_2, \cdots, x_t) = \prod_{i = 2}^{t} p(x_i \mid x_1, \cdots, x_{i-1})
+\end{equation}
+
+The above relations between the observations can be represented graphically in Fig~\ref{fig:MM}(a). The conditional probability distribution of an observation \(x_i\) depends on all observation having a smaller index than it. The graph is fully connected, and no independence property can be obtained from it. Now assume that each observation \(x_i\) only depends on one immediate previous observation \(x_{i-1}\). Then the joint distribution is 
+\begin{equation}
+	p(x_1, x_2, \cdots, x_t) = p(x_1)\prod_{i = 2}^{t} p(x_i \mid x_{i-1})
+\end{equation}
+The obtained model is called \textit{first-order Markov chain}, which is depicted in Fig~\ref{fig:MM}(b). The term \textit{first-order} indicates the dependence on only one previous observation. As an example, suppose the system has only 3 states, as shown in Fig~\ref{fig:MM}(c). Then, to fully represent the system, the only required information is the transition probabilities between different sates. The transition probabilities are usually refered as \textit{transition matrix}, denoted as \(\mathbf{A}\). Each element \(A_{ij}\) represents the probability of transfering to state \(s_j\) from state \(s_i\). Learning the parameters of this model is very simple. Since the observations are the states, \(A_{ij}\) can be simply obatained by compute the frequency of transfering to \(s_j\) starting from \(s_i\). The number of free parameters is \(K(K-1)\), where \(K\) represents the number of states in the system.
+
+Sometimes, the observations can depend on more than one observations in the past. One simple way to achieve this is creating a higer order Markov chain. By allowing the observation to depend on previous two values, a second-order Markov chain is obtained, as represented in Fig~\ref{fig:secondOrderMM}. Then the joint distribution becomes
+\begin{equation}
+	p(x_1, x_2, \cdots, x_t) = p(x_1)p(x_2 \mid x_1)\prod_{i = 3}^{t} p(x_i \mid x_{i-1}, x_{i-2})
+\end{equation}
+The higher the order is, the more flexible the model is. However, the complexity of the model increases as well, since the number of parameters grows. For a \(M^{th}\) order markov chain, there will be \(K^{M}(K-1)\) parameters. Because the exponential growth in number of parameters, the model gardually becomes impractial. 
+
+The markov chain model can be also expanded by associating an emission distribution \(\mathbf{E}_k\), \(k = 1, \cdots , K\), to each state in the system. Thus, two observations \(x_i, y_i\) exist at any time, where \(y_i\) is generated depending on \(x_i\). The joint distribution becomes
+\begin{equation}
+	p(x_1, y_1, \cdots, x_t, y_t) = p(x_1)\{\prod_{i = 2}^{t} p(x_i \mid x_{i-1})\}\{\prod_{i=1}^{t}p(y_i|x_i)\}
+\end{equation}
+The patient visits can be seen as an example of the expanded model. For each visit, the patient will go through a series of events, which can be considered as states. Each event will then last for a certain period of time. The duration can be seen as generated from a distribution, and the parameters of this distribution depend on the event. The example is shown in Fig~\ref{fig:patientMM}.
+
+\begin{figure}[ht]
 	\begin{center}
 		\includegraphics[scale = 0.8]{images/MM.png}
-		\caption{Illustration of a Markov Chain with 4 observations.}
+		\caption{Illustration of a Markov Chain of 4 observations possessing 3 states. Variables are represented using filled circles, while states are represented using filled squares.}
 		\label{fig:MM}
 	\end{center}
 \end{figure}
+
+\begin{figure}[ht]
+	\begin{center}
+		\includegraphics[scale=0.8]{images/secondOrderMM}
+		\label{fig:secondOrderMM}
+	\end{center}
+\end{figure}
+
+\begin{figure}[ht]
+	\begin{center}
+		\includegraphics[width=\textwidth]{images/patientMM}
+		\label{fig:patientMM}
+	\end{center}
+\end{figure}
+
+
 \section{Hidden Markov Models}
 \label{sec:HMM}
 
@@ -28,91 +62,91 @@ The above relations between the observations can be represented graphically in F
 
 
 
-You have now stated your problem, and you are ready to do something
-about it!  \emph{How} are you going to do that? What methods do you
-use?  You also need to review existing literature to justify your
-choices, meaning that why you have chosen the method to be applied in
-your work.
-
-% An example of a traditional LaTeX table
-% ------------------------------------------------------------------
-% A note on underfull/overfull table cells and tables:
-% ------------------------------------------------------------------
-% In professional typography, the width of the text in a page is always a lot
-% less than the width of the page. If you are accustomed to the (too wide) text
-% areas used in Microsoft Word's standard documents, the width of the text in
-% this thesis layout may suprise you. However, text in a book needs wide
-% margins. Narrow text is easier to read and looks nicer. Longer lines are 
-% hard to read, because the start of the next line is harder to locate when
-% moving from line to the next. 
-% However, tables that are in the middle of the text often would require a wider
-% area. By default, LaTeX will complain if you create too wide tables with
-% ``overfull'' error messages, and the table will not be positioned properly
-% (not centered). If at all possible, try to make the table narrow enough so
-% that it fits to the same space as the text (total width = \textwidth).
-% If you do need more space, you can either
-% 1) ignore the LaTeX warnings 
-% 2) use the textpos-package to manually position the table (read the package
-%    documentation)
-% 3) if you have the table as a PDF document (of correct size, A4), you can use
-%    the pdfpages package to include the page. This overrides the margin
-%    settings for this page and LaTeX will not complain.
-% ------------------------------------------------------------------
-% Another note:
-% ------------------------------------------------------------------
-% If your table fits to \textwidth, but the cells are so narrow that the text
-% in p{..}-formatted cells does not flow nicely (you get underfull warnings 
-% because LaTeX tries to justify the text in the cells) you can manually set
-% the text to unjustified by using the \raggedright command for each cell 
-% that you do not want to be justified (see the example below). \raggedleft 
-% is also possible, of course...
-% ------------------------------------------------------------------
-% If you need to have linefeeds (\\) inside a cell, you must create a new
-% paragraph-formatting environment inside the cell. Most common ones are 
-% the minipage-environment and the \parbox command (see LaTeX documentation
-% for details; or just google for ``LaTeX minipage'' and ``LaTeX parbox'').
-\begin{table}
-\begin{tabular}{|p{2cm}|p{3.8cm}|p{4.5cm}|p{1.1cm}|} 
-% Alignment of sells: l=left, c=center, r=right. 
-% If you want wrapping lines, use p{width} exact cell widths.
-% If you want vertical lines between columns, write | above between the letters
-% Horizontal lines are generated with the \hline command:
-\hline % The line on top of the table
-\textbf{Code} & \textbf{Name} & \textbf{Methods} & \textbf{Area} \\ 
-\hline 
-% Place a & between the columns
-% In the end of the line, use two backslashes \\ to break the line,
-% then place a \hline to make a horizontal line below the row 
-T-110.6130 & Systems Engineering for Data Communications
-    Software & \raggedright Computer simulations, mathematical modeling,
-  experimental research, data analysis, and network service business
-  research methods, (agile method) & T-110 \\ 
-\hline
-\multicolumn{2}{|p{6.25cm}|}{Mat-2.3170 Simulation (here is an example of
- multicolumn for tables)}& Details of how to build simulations & T-110 \\
-% The multicolumn command takes the following 3 arguments: 
-% the number of cells to merge, the cell formatting for the new cell, and the
-% contents of the cell
-\hline
-S-38.3184 & Network Traffic Measurements and Analysis 
-& \raggedright How to measure and analyse network
-  traffic & T-110 \\ \hline
-\end{tabular} % for really simple tables, you can just use tabular
-% You can place the caption either below (like here) or above the table
-\caption{Research methodology courses}
-% Place the label just after the caption to make the link work
-\label{table:courses}
-\end{table} % table makes a floating object with a title
-
-If you have not yet done any (real) metholodogical courses (but chosen
-introduction courses of different areas that are listed in the
-methodological courses list), now is the time to do so or at least
-check through material of suitable methodological courses. Good
-methodologial courses that consentrates especially to methods are
-presented in Table~\ref{table:courses}. Remember to explain the
-content of the tables (as with figures). In the table, the last column
-gives the research area where the methods are often used. Here we used
-table to give an example of tables. Abbreviations and Acronyms is also
-a long table. The difference is that longtables can continue to next
-page.
-
+%You have now stated your problem, and you are ready to do something
+%about it!  \emph{How} are you going to do that? What methods do you
+%use?  You also need to review existing literature to justify your
+%choices, meaning that why you have chosen the method to be applied in
+%your work.
+%
+%% An example of a traditional LaTeX table
+%% ------------------------------------------------------------------
+%% A note on underfull/overfull table cells and tables:
+%% ------------------------------------------------------------------
+%% In professional typography, the width of the text in a page is always a lot
+%% less than the width of the page. If you are accustomed to the (too wide) text
+%% areas used in Microsoft Word's standard documents, the width of the text in
+%% this thesis layout may suprise you. However, text in a book needs wide
+%% margins. Narrow text is easier to read and looks nicer. Longer lines are 
+%% hard to read, because the start of the next line is harder to locate when
+%% moving from line to the next. 
+%% However, tables that are in the middle of the text often would require a wider
+%% area. By default, LaTeX will complain if you create too wide tables with
+%% ``overfull'' error messages, and the table will not be positioned properly
+%% (not centered). If at all possible, try to make the table narrow enough so
+%% that it fits to the same space as the text (total width = \textwidth).
+%% If you do need more space, you can either
+%% 1) ignore the LaTeX warnings 
+%% 2) use the textpos-package to manually position the table (read the package
+%%    documentation)
+%% 3) if you have the table as a PDF document (of correct size, A4), you can use
+%%    the pdfpages package to include the page. This overrides the margin
+%%    settings for this page and LaTeX will not complain.
+%% ------------------------------------------------------------------
+%% Another note:
+%% ------------------------------------------------------------------
+%% If your table fits to \textwidth, but the cells are so narrow that the text
+%% in p{..}-formatted cells does not flow nicely (you get underfull warnings 
+%% because LaTeX tries to justify the text in the cells) you can manually set
+%% the text to unjustified by using the \raggedright command for each cell 
+%% that you do not want to be justified (see the example below). \raggedleft 
+%% is also possible, of course...
+%% ------------------------------------------------------------------
+%% If you need to have linefeeds (\\) inside a cell, you must create a new
+%% paragraph-formatting environment inside the cell. Most common ones are 
+%% the minipage-environment and the \parbox command (see LaTeX documentation
+%% for details; or just google for ``LaTeX minipage'' and ``LaTeX parbox'').
+%\begin{table}
+%\begin{tabular}{|p{2cm}|p{3.8cm}|p{4.5cm}|p{1.1cm}|} 
+%% Alignment of sells: l=left, c=center, r=right. 
+%% If you want wrapping lines, use p{width} exact cell widths.
+%% If you want vertical lines between columns, write | above between the letters
+%% Horizontal lines are generated with the \hline command:
+%\hline % The line on top of the table
+%\textbf{Code} & \textbf{Name} & \textbf{Methods} & \textbf{Area} \\ 
+%\hline 
+%% Place a & between the columns
+%% In the end of the line, use two backslashes \\ to break the line,
+%% then place a \hline to make a horizontal line below the row 
+%T-110.6130 & Systems Engineering for Data Communications
+%    Software & \raggedright Computer simulations, mathematical modeling,
+%  experimental research, data analysis, and network service business
+%  research methods, (agile method) & T-110 \\ 
+%\hline
+%\multicolumn{2}{|p{6.25cm}|}{Mat-2.3170 Simulation (here is an example of
+% multicolumn for tables)}& Details of how to build simulations & T-110 \\
+%% The multicolumn command takes the following 3 arguments: 
+%% the number of cells to merge, the cell formatting for the new cell, and the
+%% contents of the cell
+%\hline
+%S-38.3184 & Network Traffic Measurements and Analysis 
+%& \raggedright How to measure and analyse network
+%  traffic & T-110 \\ \hline
+%\end{tabular} % for really simple tables, you can just use tabular
+%% You can place the caption either below (like here) or above the table
+%\caption{Research methodology courses}
+%% Place the label just after the caption to make the link work
+%\label{table:courses}
+%\end{table} % table makes a floating object with a title
+%
+%If you have not yet done any (real) metholodogical courses (but chosen
+%introduction courses of different areas that are listed in the
+%methodological courses list), now is the time to do so or at least
+%check through material of suitable methodological courses. Good
+%methodologial courses that consentrates especially to methods are
+%presented in Table~\ref{table:courses}. Remember to explain the
+%content of the tables (as with figures). In the table, the last column
+%gives the research area where the methods are often used. Here we used
+%table to give an example of tables. Abbreviations and Acronyms is also
+%a long table. The difference is that longtables can continue to next
+%page.
+%
