@@ -8,7 +8,7 @@ As described in Chapter~\ref{chapter:background}, the patients visits can be see
 
 \section{Discrete Markov Process}
 \label{sec:MM}
-Consider a system having \(N\) distinct states \(S_1, S_2, \cdots, X_N\). At any time, the system will be in one of these states. After a given time period \(t\), a series obeservation \(x_1, x_2, \cdots, x_t\) can be obtained. According to the prodcut rule of probability, the joint distribution for this sequence of observation is
+Consider a system having \(N\) distinct states \(S_1, S_2, \cdots, X_N\). At any time, the system will be in one of these states. After a given time period \(t\), a series obeservation \(x_1, x_2, \cdots, x_t\) can be obtained. (Without loss of generality, the discussion assumes the variables are all scalar. The assumption holds in the rest of the context unless explicitly stated otherwise) According to the prodcut rule of probability, the joint distribution for this sequence of observation is
 \begin{equation}
 	p(x_1, x_2, \cdots, x_t) = \prod_{i = 2}^{t} p(x_i \mid x_1, \cdots, x_{i-1})
 \end{equation}
@@ -19,36 +19,38 @@ The above relations between the observations can be represented graphically in F
 \end{equation}
 The obtained model is called \textit{first-order Markov chain}, which is depicted in Fig~\ref{fig:MM}(b). The term \textit{first-order} indicates the dependence on only one previous observation. As an example, suppose the system has only 3 states, as shown in Fig~\ref{fig:MM}(c). Then, to fully represent the system, the only required information is the transition probabilities between different sates. The transition probabilities are usually refered as \textit{transition matrix}, denoted as \(\mathbf{A}\). Each element \(A_{ij}\) represents the probability of transfering to state \(s_j\) from state \(s_i\). Learning the parameters of this model is very simple. Since the observations are the states, \(A_{ij}\) can be simply obatained by compute the frequency of transfering to \(s_j\) starting from \(s_i\). The number of free parameters is \(K(K-1)\), where \(K\) represents the number of states in the system.
 
+\begin{figure}[ht]
+	\begin{center}
+		\includegraphics[scale = 0.7]{images/MM.png}
+		\caption{Illustration of a Markov Chain of 4 observations possessing 3 states. Variables are represented using filled circles, while states are represented using filled squares.}
+		\label{fig:MM}
+	\end{center}
+\end{figure}
+
 Sometimes, the observations can depend on more than one observations in the past. One simple way to achieve this is creating a higer order Markov chain. By allowing the observation to depend on previous two values, a second-order Markov chain is obtained, as represented in Fig~\ref{fig:secondOrderMM}. Then the joint distribution becomes
 \begin{equation}
 	p(x_1, x_2, \cdots, x_t) = p(x_1)p(x_2 \mid x_1)\prod_{i = 3}^{t} p(x_i \mid x_{i-1}, x_{i-2})
 \end{equation}
 The higher the order is, the more flexible the model is. However, the complexity of the model increases as well, since the number of parameters grows. For a \(M^{th}\) order markov chain, there will be \(K^{M}(K-1)\) parameters. Because the exponential growth in number of parameters, the model gardually becomes impractial. 
 
-The markov chain model can be also expanded by associating an emission distribution \(\mathbf{E}_k\), \(k = 1, \cdots , K\), to each state in the system. Thus, two observations \(x_i, y_i\) exist at any time, where \(y_i\) is generated depending on \(x_i\). The joint distribution becomes
+The markov chain model can be also expanded by associating an emission distribution \(\mathbf{E}_k\), \(k = 1, \cdots , K\), to each state in the system. Thus, two observations \(x_i\), \(y_i\) exist at any time, where \(y_i\) is generated depending on \(x_i\). If the expansion is based on a first-order Markov chain, the joint distribution becomes
 \begin{equation}
-	p(x_1, y_1, \cdots, x_t, y_t) = p(x_1)\{\prod_{i = 2}^{t} p(x_i \mid x_{i-1})\}\{\prod_{i=1}^{t}p(y_i|x_i)\}
+	p(x_1, y_1, \cdots, x_t, y_t) = p(x_1)\big[\prod_{i = 2}^{t} p(x_i \mid x_{i-1})\big]\big[\prod_{i=1}^{t}p(y_i|x_i)\big]
 \end{equation}
 The patient visits can be seen as an example of the expanded model. For each visit, the patient will go through a series of events, which can be considered as states. Each event will then last for a certain period of time. The duration can be seen as generated from a distribution, and the parameters of this distribution depend on the event. The example is shown in Fig~\ref{fig:patientMM}.
 
 \begin{figure}[ht]
 	\begin{center}
-		\includegraphics[scale = 0.8]{images/MM.png}
-		\caption{Illustration of a Markov Chain of 4 observations possessing 3 states. Variables are represented using filled circles, while states are represented using filled squares.}
-		\label{fig:MM}
-	\end{center}
-\end{figure}
-
-\begin{figure}[ht]
-	\begin{center}
 		\includegraphics[scale=0.8]{images/secondOrderMM}
+		\caption{Illustration of a second-order Markov model.}
 		\label{fig:secondOrderMM}
 	\end{center}
 \end{figure}
 
 \begin{figure}[ht]
 	\begin{center}
-		\includegraphics[width=\textwidth]{images/patientMM}
+		\includegraphics[width=0.8\textwidth]{images/patientMM}
+		\caption{Modelling a patient visit as an expansion of first-order Markov model.}
 		\label{fig:patientMM}
 	\end{center}
 \end{figure}
@@ -56,11 +58,33 @@ The patient visits can be seen as an example of the expanded model. For each vis
 
 \section{Hidden Markov Models}
 \label{sec:HMM}
+As mentioned in last section, a tradeoff between flexibility and practicality exists in deciding the order number for a Markov chain model. However, in special situations, such as speech recognition, very high-order Markov chain is expected. Ideally, it would be better to build a general model which is not limited to any specific given order, and still only limited number of parameters are required to specify the model. These requirements can be satisfied by constructing a Hidden Markov Model using additional latent variables. 
 
+Suppose a sequence of observations \(\mathbf{X} = \{x_1, \cdots, x_N\}\) is obtained. In stead of assuming each observation depends directly on a specific number of previous observations, the new assumption is that, there is a latent variable \(z_i\) corresponding to each observation, and the latent variables form a Markov chain. The latent variables don't have to possess physical meanings. They can even be of different type in terms of distribution, dimensionality, to the observations. A graphical representation of this model is shown in Fig~\ref{fig:HMM}. It's easy to get confused by comparing Fig~\ref{fig:patientMM} and Fig~\ref{fig:HMM} since they share the same graphical structure. The difference is that, in Fig~\ref{fig:HMM}, the \(z_i\)'s are unobserved latent variables. This is depicted using unfilled circles. While in Fig~\ref{fig:patientMM}, the events are also observed values as the time duration is. Observed variables are all represented using filled circles. If the HMM is applied to the patient visits, one potential structure could be the one shown in Fig~\ref{fig:patientHMM}. In this model, the value of latent variable determines which event will generate. Notice that the latent variables don't have associated physical meaning and specific distribution form. One can explain them as indication of the functioning statu of the system by selecting them to be binary variables. When \(z_i\) = 1, it indicates the system is working in normal mode. When \(z_i\) = 0, it means the system is working in a problametic way.
 
+\begin{figure}[ht]
+	\begin{center}
+		\includegraphics[scale = 0.8]{images/HMM}
+		\caption{Graphical representation of a Hidden Markov Model. Observations are represented using filled circles, whilc latent variables are depicted using unfilled circles. The latent variables form a first-order Markov chain.}
+		\label{fig:HMM}
+	\end{center}
+\end{figure}
 
+\begin{figure}[ht]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{images/patientHMM}
+		\caption{Modelling patient visit as Hidden Markov Model. Event types and event duration are represented using filled eclipses and circles respectively. Additional hidden variables are represented using unfilled circles. No specific physical meaning is associated with these latent variables.}
+		\label{fig:patientHMM}
+	\end{center}
+\end{figure}
 
+Using the HMM, the joint distribution over both observed and latent variables is given below
+\begin{equation}
+	p(\mathbf{X}, \mathbf{Z} \mid \boldsymbol{\theta}) = p(z_1 \mid \pi) \big[\prod_{n=2}^{N}p(z_n\mid z_{n-1}, \mathbf{A})\big] \big[\prod_{m=1}^{N}p(x_m\mid z_m, \phi)\big]
+\end{equation}
+where \(\mathbf{X} = \{x_1, \cdots, x_N\}\) represents all the observed variables, \(\mathbf{Z} = \{z_1, \cdots, z_N\}\) represents latent variables, and \(\boldsymbol{\theta} = \{\pi, \mathbf{A}, \phi\}\) represents the parameters in this model. The matrix \(\mathbf{A}\) is the transition matrix among the latent variables. The \(\pi\) is a prior distribution for deciding the value of the first variable \(z_1\). The \(\phi\) are the parameters of the emission distribution associated with \(z_i\) and \(x_i\).
 
+Given above notations, the problem is, given a sequence of observations, what is the value of latent variables, and what is the value of the parameters.
 
 %You have now stated your problem, and you are ready to do something
 %about it!  \emph{How} are you going to do that? What methods do you
