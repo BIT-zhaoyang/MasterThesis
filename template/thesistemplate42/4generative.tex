@@ -94,7 +94,13 @@ There are three basic problems in HMM.~\cite{rabiner1989tutorial} Using above no
 \end{itemize}
 The rest of the context focus on the first two questions. The reason is that, once the value of \(p(\mathbf{X} \mid \boldsymbol{\theta})\) is computed, the decision on whether a given sequence is anomaly can be made by comparing \(p(\mathbf{X} \mid \boldsymbol{\theta})\) to a threshould value.
 
-\subsubsection{•}
+Though it seems more intuitive that finding a way to evaluate \(p(\mathbf{X} \mid \boldsymbol{\theta})\) should come before maximizing it with respect to the parameters, it would be more convenient to start at solving problem 2. After solving problem 2, the solution to the first problem will appear naturally. The following discussion begins by introducing some new concepts and notations.
+
+%Introduce EM, then gamma(z_k), then alpha-beta algorithm. At the end talk about scaling if necessary.
+% Skip the example part since it's not really related to our anomaly detection task.
+
+
+
 %You have now stated your problem, and you are ready to do something
 %about it!  \emph{How} are you going to do that? What methods do you
 %use?  You also need to review existing literature to justify your
