@@ -35,7 +35,7 @@ Compared to \textit{first-order Markov chain}, the \textit{second-order Markov c
 
 The markov chain model can be expanded in another way, by associating an emission distribution \(\mathbf{E}_k\), \(k = 1, \cdots , K\), to each state in the system. Thus, two observations \(x_i\), \(y_i\) exist at any time, where \(y_i\) is generated depending on \(x_i\). If the expansion is based on a first-order Markov chain, the joint distribution becomes
 \begin{equation}
-	p(x_1, y_1, \cdots, x_t, y_t) = p(x_1)\big[\prod_{i = 2}^{t} p(x_i \mid x_{i-1})\big]\big[\prod_{i=1}^{t}p(y_i|x_i)\big]
+	p(x_1, y_1, \cdots, x_t, y_t) = p(x_1)\big(\prod_{i = 2}^{t} p(x_i \mid x_{i-1})\big)\big(\prod_{i=1}^{t}p(y_i|x_i)\big)
 \end{equation}
 
 The patient visits can be seen as an example of this expanded model. For each visit, the patient will go through a series of events, which can be considered as states. Each event will then last for a certain period of time. The duration can be seen as generated from a distribution, and the parameters of this distribution depend on the event. The example is shown in Fig~\ref{fig:patientMM}.
@@ -81,12 +81,13 @@ Suppose a sequence of observations \(\mathbf{X} = \{x_1, \cdots, x_N\}\) is obta
 
 In the framework of HMM, the joint distribution over both observed and latent variables is given below
 \begin{equation}
-	p(\mathbf{X}, \mathbf{Z} \mid \boldsymbol{\theta}) = p(z_1 \mid \pi) \big[\prod_{n=2}^{N}p(z_n\mid z_{n-1}, \mathbf{A})\big] \big[\prod_{m=1}^{N}p(x_m\mid z_m, \phi)\big]
+	p(\mathbf{X}, \mathbf{Z} \mid \boldsymbol{\theta}) = p(z_1 \mid \pi) \big(\prod_{n=2}^{N}p(z_n\mid z_{n-1}, \mathbf{A})\big) \big(\prod_{m=1}^{N}p(x_m\mid z_m, \phi)\big)
+	\label{eq:HMMcomplete}
 \end{equation}
 where \(\mathbf{X} = \{x_1, \cdots, x_N\}\) represents all the observed variables, \(\mathbf{Z} = \{z_1, \cdots, z_N\}\) represents latent variables, and \(\boldsymbol{\theta} = \{\pi, \mathbf{A}, \phi\}\) represents the parameters in this model. The \(\pi\) is a prior distribution for deciding the value of the first variable \(z_1\). The matrix \(\mathbf{A}\) is the transition matrix among the latent variables. The \(\phi\) are the parameters of the emission distribution associated with \(z_i\) and \(x_i\).
 
 \subsection{Learning and Inference}
-There are three basic problems in HMM.~\cite{rabiner1989tutorial} Using above notation, the problems are described below:
+There are three basic problems in HMM.~\cite{rabiner1989tutorial}  These problems are described below using above notations:
 \begin{itemize}
 	\item Problem 1: Given a sequence of observations \(\mathbf{X} = \{x_1, \cdots, x_N\}\), what is the probability \(p(\mathbf{X} \mid \boldsymbol{\theta}) 			  \)over the observations, under specific parameters \(\boldsymbol{\theta} = \{\pi, \mathbf{A}, \phi\}\)?
 	\item Problem 2: What's the value of the parameters which maximizes \(p(\mathbf{X} \mid \boldsymbol{\theta})\)?
@@ -96,6 +97,40 @@ The rest of the context focus on the first two questions. The reason is that, on
 
 Though it seems more intuitive that finding a way to evaluate \(p(\mathbf{X} \mid \boldsymbol{\theta})\) should come before maximizing it with respect to the parameters, it would be more convenient to start at solving problem 2. After solving problem 2, the solution to the first problem will appear naturally. The following discussion begins by introducing some new concepts and notations.
 
+The distribution over only observed variables \(p(\mathbf{X} \mid \boldsymbol{\theta})\) is usually refered as \textit{incomplete likelihood}, while distribution over both observed and unobserved variables \(p(\mathbf{X}, \mathbf{Z} \mid \boldsymbol{\theta})\) is refered as \textit{complete likelihood}. Using formula~(\ref{eq:HMMcomplete}), the logarithm of incomplete likelihood can be represented as
+\begin{equation}
+	\begin{split}
+		\ln p(\mathbf{X} \mid \boldsymbol{\theta}) & = \ln \sum_{\mathbf{Z}}p(\mathbf{X}, \mathbf{Z} \mid \boldsymbol{\theta}) \\
+										   & = \ln p(z_1 \mid \pi)  + \ln \sum_{\mathbf{Z}}\Big( \big(\prod_{n=2}^{N}p(z_n\mid z_{n-1}, \mathbf{A})\big) \big(\prod_{m=1}^{N}p(x_m\mid z_m, \phi)\big)\Big)
+	\end{split}
+\end{equation}
+The above formula is a generalization of the \textit{mixture distribution}~\cite{PRML}. Maximizing this formula with respect to the parameters is very difficult since the derivatives don't have a closed form. An alternative practical working algorithm is the \textit{expectation-maximization(EM)} algorithm~\cite{dempster1977maximum}\cite{mclachlan2007algorithm}. The EM algorithm is very similiar to the K-Means algorithm mentioned in Chapter~\ref{chapter:clustering}. The algorithm consists of two steps, E-step and M-step. In the E-step, the algorithm fixes the value of parameters and find the posterior distribution of the laten variables \(p(\mathbf{Z} \mid \mathbf{X}, \boldsymbol{\theta}^{old})\). Here the notation is adopted from Bishop's~\cite{PRML}. The superscription \textit{old} in \(\theta^{old}\) means the parameter is fixed. Then the algorithm computes the expectation of the logarithm of the complete likelihood, with respect to the derived posterior distribution. The newly derived term becomes a function of \(\boldsymbol{\theta}\), which is shown below
+\begin{equation}
+	Q(\boldsymbol{\theta}, \boldsymbol{\theta}^{old}) = \sum_{\mathbf{Z}}p(\mathbf{Z}\mid \mathbf{X}, \boldsymbol{\theta}^{old})\ln p(\mathbf{X}, \mathbf{Z} \mid \boldsymbol{\theta})
+\end{equation}
+Then in the M-step,  the new value of \(\boldsymbol{\theta}\) is updated by maximizing \(Q(\boldsymbol{\theta}, \boldsymbol{\theta}^{old})\). Compared to K-Means, the E-step corresponds to assign each point to a cluster prototype, and the M-step corresponds to update the value of the prototypes. These two steps are excecuted alternatively until convergence or maximum number of iteration is reached. In the rest context, \(\gamma(\mathbf{z}_n)\) and \(\gamma(\mathbf{z}_{n-1}, \mathbf{z}_n)\) are introduced which stands for the posterior distribution of a single latent variable and the joint posterior distribution over two consecutive latent variables, seperately. Instead of assuming the latent variables are scalar, here they are represented using \textit{1-of-K} coding. Namely, each latent variable is a length \(K\) vector, where one and only one of these \(K\) elements equals 1. When \(z_{nk} = 1\), it means the \(nth\) latent variable is in the \(kth\) state. Using this representation schema, following equations are obtained
+\begin{align}
+	\gamma(\mathbf{z}_n) = &p(\mathbf{z}_n \mid \mathbf{X}, \boldsymbol{\theta}^{old})	\\
+	\gamma(\mathbf{z}_{n-1}, \mathbf{z}_n) = &p(\mathbf{z}_{n-1}, \mathbf{z}_n \mid \mathbf{X}, \boldsymbol{\theta}^{old}) \\
+	Q(\boldsymbol{\theta}, \boldsymbol{\theta}^{old}) = &\sum_{k=1}^{K} \gamma(z_{1k})\ln \pi_k + \sum_{n=2}^{N}\sum_{j=1}^{K}\sum_{k=1}^{K}\gamma(\mathbf{z}_{n-1}, \mathbf{z}_n)\ln A_{jk}		\notag		\\
+		&+ \sum_{n=1}^{N}\sum_{k=1}^{K}\gamma(z_{nk})\ln p(x_n\mid\phi_k)	
+\end{align}
+
+Computation in the M-step is relatively easy. Assume the E-step has been done, so that  \(\gamma(\mathbf{z}_n)\) and \(\gamma(\mathbf{z}_{n-1}, \mathbf{z}_n)\) are like constants now. Then following update equation can be obtained
+\begin{align}
+	\pi_k = & \frac{\gamma(z_{1k})}{\sum_{j=1}^{K}\gamma(z_{1j})}	\\
+	A_{jk} = & \frac{\sum_{n=2}^{N}\gamma(z_{n-1,j},z_{nk})}{\sum_{l=1}^{K}\sum_{n=2}^{N}\gamma(z_{n-1,j},z_{nl})}
+\end{align}
+Updation of \(\phi_k\) is more tricky, since it depends on the specific choice of the emission distribution. One good observation is that, only the final term depends on \(\phi_k\), and different \(\phi_k\) doesn't couple with each other. Thus, each \(\phi_k\) can be updated seperately. The term \(\gamma(z_{nk})\) functions as a soft assignment, representing the probability of assigning a point \(x_n\) to each state.
+
+Computation in E-step is more difficult which requires efficient algorithm. The most widely used algorithm is known as \textit{alpha-beta} algorithm. The alpha-beta algorithm can be seen as an application of dynamic programming technique which takes advantage of the tree structure in HMM thus leading to efficiency. To start with the alpha-beta algorithm, following conditional independence properties should be obtained first
+\begin{align}
+	p(\mathbf{X}\mid \mathbf{z}_n) = &p(x_1, \cdots, x_n \mid \mathbf{z}_n)	\notag \\	
+										&p(x_{n+1}, \cdots, x_N \mid \mathbf{z}_n) \\
+	p(x_1, \cdots, x_{n-1}\mid x_n, \mathbf{z}_n) = &p(x_1, \cdots, x_{n-1} \mid \mathbf{z}_n)	\\
+	p(x_1, \cdots, x_{n-1}\mid z_{n-1}, \mathbf{z}_n) = &p(x_1, \cdots, x_{n-1} \mid \mathbf{z}_{n-1})
+\end{align}
+These equations can be obtained by using \textit{d-seperation} technique~\cite{pearl2014probabilistic}, or proved formally using sum and product rules of probability~\cite{jordan2003introduction}.
 %Introduce EM, then gamma(z_k), then alpha-beta algorithm. At the end talk about scaling if necessary.
 % Skip the example part since it's not really related to our anomaly detection task.
 
