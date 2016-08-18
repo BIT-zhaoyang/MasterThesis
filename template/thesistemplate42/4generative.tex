@@ -19,9 +19,9 @@ The conditional probability distribution of each observation \(x_i\) depends on 
 \end{equation}
 This newly obtained model is depicted in Fig~\ref{fig:MM}(b), and is referred as \textit{first-order Markov chain}. The term \textit{first-order} indicates the dependence on only one previous observation. Suppose the system has only 3 states, as shown in Fig~\ref{fig:MM}(c). Then, to fully represent the system, the only required information is the transition probabilities between different sates. The transition probabilities are usually refered as \textit{transition matrix}, denoted as \(\mathbf{A}\). Each element \(A_{ij}\) represents the probability of transfering from state \(s_i\) to state \(s_j\). Learning the parameters of this model is very simple. Since the states are exactly the observations, \(A_{ij}\) can be simply obatained by compute the frequency of transfering to \(s_j\) starting from \(s_i\). The number of free parameters in this model is \(K(K-1)\), where \(K\) represents the number of states in the system.
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 	\begin{center}
-		\includegraphics[scale = 0.7]{images/MM.png}
+		\includegraphics[scale = 0.75]{images/MM.png}
 		\caption{Illustration of a Markov Chain of 4 observations possessing 3 states. Variables are represented using filled circles, while states are represented using filled squares.}
 		\label{fig:MM}
 	\end{center}
@@ -40,7 +40,7 @@ The markov chain model can be expanded in another way, by associating an emissio
 
 The patient visits can be seen as an example of this expanded model. For each visit, the patient will go through a series of events, which can be considered as states. Each event will then last for a certain period of time. The duration can be seen as generated from a distribution, and the parameters of this distribution depend on the event. The example is shown in Fig~\ref{fig:patientMM}.
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 	\begin{center}
 		\includegraphics[scale=0.8]{images/secondOrderMM}
 		\caption{Illustration of a second-order Markov model.}
@@ -48,7 +48,7 @@ The patient visits can be seen as an example of this expanded model. For each vi
 	\end{center}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 	\begin{center}
 		\includegraphics[width=0.8\textwidth]{images/patientMM}
 		\caption{Modelling a patient visit as an expansion of first-order Markov model.}
@@ -63,7 +63,7 @@ As mentioned in the last section, a tradeoff between flexibility and practicalit
 
 Suppose a sequence of observations \(\mathbf{X} = \{x_1, \cdots, x_N\}\) is obtained. In stead of assuming each observation depends directly on a specific number of previous observations, the new assumption is that, there is a latent variable \(z_i\) corresponding to each observation, and the latent variables form a Markov chain. The latent variables don't have to possess any physical meanings. They can even be of different type to the observations, in terms of distribution and dimensionality. A graphical representation of this model is shown in Fig~\ref{fig:HMM}. It's easy to get confused by comparing Fig~\ref{fig:patientMM} and Fig~\ref{fig:HMM} since they share the same graphical structure. The difference is that, in Fig~\ref{fig:HMM}, the \(z_i\)'s are unobserved latent variables, which is depicted using unfilled circles. While in Fig~\ref{fig:patientMM}, both events and duration are observed values. All observed variables are represented using filled circles. If the HMM is applied to the patient visits, one potential structure could be the one shown in Fig~\ref{fig:patientHMM}. In this model, the value of latent variable determines which event will generate, then the event determines how long the duration will be. Notice that the latent variables don't have any associated physical meaning or specific distribution form. One can explain them as indication of the functioning statu of the system by selecting them to be binary variables. When \(z_i\) = 1, it indicates the queue system in the hospital is working in normal mode. When \(z_i\) = 0, it means the system is working in a problametic way.
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 	\begin{center}
 		\includegraphics[scale = 0.8]{images/HMM}
 		\caption{Graphical representation of a Hidden Markov Model. Observations are represented using filled circles, whilc latent variables are depicted using unfilled circles. The latent variables form a first-order Markov chain.}
@@ -71,7 +71,7 @@ Suppose a sequence of observations \(\mathbf{X} = \{x_1, \cdots, x_N\}\) is obta
 	\end{center}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 	\begin{center}
 		\includegraphics[width=0.8\textwidth]{images/patientHMM}
 		\caption{Modelling patient visit as Hidden Markov Model. Event types and event duration are represented using filled eclipses and circles respectively. Additional hidden variables are represented using unfilled circles. No specific physical meaning is associated with these latent variables.}
@@ -110,10 +110,10 @@ The above formula is a generalization of the \textit{mixture distribution}~\cite
 \end{equation}
 Then in the M-step,  the new value of \(\boldsymbol{\theta}\) is updated by maximizing \(Q(\boldsymbol{\theta}, \boldsymbol{\theta}^{old})\). Compared to K-Means, the E-step corresponds to assign each point to a cluster prototype, and the M-step corresponds to update the value of the prototypes. These two steps are excecuted alternatively until convergence or maximum number of iteration is reached. In the rest context, \(\gamma(\mathbf{z}_n)\) and \(\gamma(\mathbf{z}_{n-1}, \mathbf{z}_n)\) are introduced which stands for the posterior distribution of a single latent variable and the joint posterior distribution over two consecutive latent variables, seperately. Instead of assuming the latent variables are scalar, here they are represented using \textit{1-of-K} coding. Namely, each latent variable is a length \(K\) vector, where one and only one of these \(K\) elements equals 1. When \(z_{nk} = 1\), it means the \(nth\) latent variable is in the \(kth\) state. Using this representation schema, following equations are obtained
 \begin{align}
-	\gamma(\mathbf{z}_n) = &p(\mathbf{z}_n \mid \mathbf{X}, \boldsymbol{\theta}^{old})	\\
-	\gamma(\mathbf{z}_{n-1}, \mathbf{z}_n) = &p(\mathbf{z}_{n-1}, \mathbf{z}_n \mid \mathbf{X}, \boldsymbol{\theta}^{old}) \\
+	\gamma(\mathbf{z}_n) = &p(\mathbf{z}_n | \mathbf{X}, \boldsymbol{\theta}^{old})	\\
+	\gamma(\mathbf{z}_{n-1}, \mathbf{z}_n) = &p(\mathbf{z}_{n-1}, \mathbf{z}_n | \mathbf{X}, \boldsymbol{\theta}^{old}) \\
 	Q(\boldsymbol{\theta}, \boldsymbol{\theta}^{old}) = &\sum_{k=1}^{K} \gamma(z_{1k})\ln \pi_k + \sum_{n=2}^{N}\sum_{j=1}^{K}\sum_{k=1}^{K}\gamma(\mathbf{z}_{n-1}, \mathbf{z}_n)\ln A_{jk}		\notag		\\
-		&+ \sum_{n=1}^{N}\sum_{k=1}^{K}\gamma(z_{nk})\ln p(x_n\mid\phi_k)	
+		&+ \sum_{n=1}^{N}\sum_{k=1}^{K}\gamma(z_{nk})\ln p(x_n|\phi_k)	
 \end{align}
 
 Computation in the M-step is relatively easy. Assume the E-step has been done, so that  \(\gamma(\mathbf{z}_n)\) and \(\gamma(\mathbf{z}_{n-1}, \mathbf{z}_n)\) are like constants now. Then following update equation can be obtained
@@ -123,14 +123,62 @@ Computation in the M-step is relatively easy. Assume the E-step has been done, s
 \end{align}
 Updation of \(\phi_k\) is more tricky, since it depends on the specific choice of the emission distribution. One good observation is that, only the final term depends on \(\phi_k\), and different \(\phi_k\) doesn't couple with each other. Thus, each \(\phi_k\) can be updated seperately. The term \(\gamma(z_{nk})\) functions as a soft assignment, representing the probability of assigning a point \(x_n\) to each state.
 
-Computation in E-step is more difficult which requires efficient algorithm. The most widely used algorithm is known as \textit{alpha-beta} algorithm. The alpha-beta algorithm can be seen as an application of dynamic programming technique which takes advantage of the tree structure in HMM thus leading to efficiency. To start with the alpha-beta algorithm, following conditional independence properties should be obtained first
+Computation in E-step is more difficult which requires efficient algorithm. The most widely used algorithm is known as \textit{alpha-beta} algorithm. This algorithm can be seen as an application of dynamic programming technique which takes advantage of the tree structure in HMM thus leading to efficiency. To start with the alpha-beta algorithm, following conditional independence properties should be obtained first~\cite{jordan2003introduction}
 \begin{align}
-	p(\mathbf{X}\mid \mathbf{z}_n) = &p(x_1, \cdots, x_n \mid \mathbf{z}_n)	\notag \\	
-										&p(x_{n+1}, \cdots, x_N \mid \mathbf{z}_n) \\
-	p(x_1, \cdots, x_{n-1}\mid x_n, \mathbf{z}_n) = &p(x_1, \cdots, x_{n-1} \mid \mathbf{z}_n)	\\
-	p(x_1, \cdots, x_{n-1}\mid z_{n-1}, \mathbf{z}_n) = &p(x_1, \cdots, x_{n-1} \mid \mathbf{z}_{n-1})
+	p(\mathbf{X}| \mathbf{z}_n) = &p(x_1, \cdots, x_n | \mathbf{z}_n)	\notag \\	
+										&p(x_{n+1}, \cdots, x_N | \mathbf{z}_n) \\
+	p(x_1, \cdots, x_{n-1}| x_n, \mathbf{z}_n) = &p(x_1, \cdots, x_{n-1} | \mathbf{z}_n)	\\
+	p(x_1, \cdots, x_{n-1}| z_{n-1}, \mathbf{z}_n) = &p(x_1, \cdots, x_{n-1} | \mathbf{z}_{n-1})
 \end{align}
-These equations can be obtained by using \textit{d-seperation} technique~\cite{pearl2014probabilistic}, or proved formally using sum and product rules of probability~\cite{jordan2003introduction}.
+These equations can be obtained by using \textit{d-seperation} technique~\cite{pearl2014probabilistic}, or proved formally using sum and product rules of probability. Using the first independence property and Bayes' theorem, following equations are obtained
+\begin{equation}
+	\label{eq:gammaZn}
+	\begin{split}
+	\gamma(\mathbf{z}_n) &= p(\mathbf{z}_n | \mathbf{X})  = \frac{p(\mathbf{X}| \mathbf{z}_n)p(\mathbf{z}_n)}{p(\mathbf{X})}	\\
+										 & = \frac{p(x_1, \cdots, x_n, \mathbf{z}_n)p(x_{n+1}, \cdots, x_N | \mathbf{z}_n)}{p(\mathbf{X})}	\\
+										 & = \frac{\alpha(\mathbf{z}_n)\beta(\mathbf{z}_n)}{p(\mathbf{X})}
+	\end{split}
+\end{equation}
+where
+\begin{align}
+	\alpha(\mathbf{z}_n) & = p(x_1, \cdots, x_n, \mathbf{z}_n)\\
+	\beta(\mathbf{z}_n)  & = p(x_{n+1}, \cdots, x_N | \mathbf{z}_n)
+\end{align}
+Using the other two conditional independence properties, \(\alpha(\mathbf{z}_n)\) can be expressed recursively in terms of \(\alpha(\mathbf{z}_{n-1})\)
+\begin{equation}
+	\begin{split}
+	\alpha(\mathbf{z}_n) &=  p(x_n | \mathbf{z}_n) \sum_{\mathbf{z}_{n-1}}p(x_1, \cdots, x_{n-1}, \mathbf{z}_{n-1})p(\mathbf{z}_n | \mathbf{z}_{n-1}) \\
+						 &=  p(x_n | \mathbf{z}_n) \sum_{\mathbf{z}_{n-1}} \alpha(\mathbf{z}_{n-1})p(\mathbf{z}_n | \mathbf{z}_{n-1})
+	\end{split}
+\end{equation}
+Similiarly, \(\beta(\mathbf{z}_n)\) can also be expressed recursively as
+\begin{equation}
+	\beta(\mathbf{z}_n) = \sum_{\mathbf{z}_{n+1}}\beta(\mathbf{z}_{n+1})p(x_{n+1}|\mathbf{z}_{n+1})p(\mathbf{z}_{n+1}|\mathbf{z}_n)
+\end{equation}
+The term \(\alpha(\mathbf{z}_n)\) can be seen as messages propagated from the beginning to the end. Each \(\alpha(\mathbf{z}_n)\) receives messages passed from its predecessor, combines these information with its own information and then pass them to its successor. The logical also applies to the term \(\beta(\mathbf{z}_n)\), but the messages are from the end to the beginning. Due to the tree strucutre in HMM, computing each term only depends on one adjacent term, instead of all terms before/after it. Thus, the computation reduces dramatically which makes the algorithm efficient. To start the whole computation, initial conditions \(\alpha(\mathbf{z}_1)\) and \(\beta(\mathbf{z}_n)\) are required. The initial conditions are given below
+\begin{align}
+	\alpha(\mathbf{z}_1) &= \prod_{k=1}^{K}\{\pi_k p(x_1 | \phi_k) \}^{z_{1k}}	\\
+	\beta(\mathbf{z}_N) &= 1
+\end{align}
+
+Having obtained \(\alpha(\mathbf{z}_n)\) and \(\beta(\mathbf{z}_n)\), the posterior distribution \(\gamma(\mathbf{z}_n)\) can be computed as in equation~(\ref{eq:gammaZn}). As for \(\gamma(\mathbf{z}_{n-1}, \mathbf{z}_n)\), it can be computed as following
+\begin{align}
+\gamma(\mathbf{z}_{n-1}, \mathbf{z}_n) &= p(\mathbf{z}_{n-1}, \mathbf{z}_n | \mathbf{X}) \nonumber \\
+									   & = \frac{p(\mathbf{X} | \mathbf{z}_{n-1}, \mathbf{z}_n)p(\mathbf{z}_{n-1}, \mathbf{z}_n)}{p(\mathbf{X})}\nonumber \\
+									   & = \frac{p(x_1, \cdots, x_{n-1} | \mathbf{z}_{n-1}) p(x_n | \mathbf{z}_n) p(x_{n+1}, \cdots, x_N | \mathbf{z}_n)
+									   			 p(\mathbf{z}_n | \mathbf{z}_{n-1}) p(\mathbf{z}_{n-1})}{p(\mathbf{X})}\nonumber \\
+									   & = \frac{\alpha(\mathbf{z}_{n-1}p(x_n|\mathbf{z}_n)p(\mathbf{z}_n|\mathbf{z}_{n-1})\beta(\mathbf{z}_n)}{p(\mathbf{X})}
+\end{align}
+Up till now, both steps in EM algorithm are introduced, and the problem 2 can be solved efficiently. The left question is how to solve problem 1, computing the likelihood over the incomplete data. The solution comes from  equation~(\ref{eq:gammaZn}). Notice that \(\gamma(\mathbf{z}_n)\) is a posterior distribution. Integrating both sides of equation~(\ref{eq:gammaZn}) over \(\mathbf{z}_n\) gives
+\begin{equation}
+	p(\mathbf{X}) = \sum_{\mathbf{z}_n} \alpha(\mathbf{z}_n)\beta(\mathbf{z}_n)
+\end{equation}
+where \(\mathbf{z}_n\) is an arbitrary latent variable. If \(n = N\), then \(\beta(\mathbf{z}_n) = 1\), which makes the above equation simpler
+\begin{equation}
+	p(\mathbf{X}) = \sum_{\mathbf{z}_N} \alpha(\mathbf{z}_N)
+\end{equation}
+Then, both problem 1 and problem 2 are solved.
+
 %Introduce EM, then gamma(z_k), then alpha-beta algorithm. At the end talk about scaling if necessary.
 % Skip the example part since it's not really related to our anomaly detection task.
 
