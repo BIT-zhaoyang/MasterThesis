@@ -2,22 +2,22 @@
 %MM: mention sequential data
 %HMM, advantages: more complex dependence, enable contruction from simpler blocks
 \label{chapter:generative}
-This chapter is going to explore generative methods for anomaly detection. Generative methods are a collection of algorithms which try to build a model that explains the process of how the data generates. Then, based on information from the proposed model, anomalies are detected. A family of algorithms belonging to this category is the Markov models.
+This chapter is going to explore generative methods for anomaly detection. Generative methods are a collection of algorithms which try to build a model that explains the process of how the data generates. Then, the model gives a score indicating how likely one entry is an anomaly. A family of algorithms belonging to this category is the Markov models.
 
-As described in Chapter~\ref{chapter:background}, the patients visits can be seen as time sequential data consisting of a series of events. The events in one visit are not generated independently and randomly. Instead, past events have an effect on the type of the next possible event. To handle sequential data, Markov models are the correct choice since they consider the relation between consecutive observations. In the following context, Section~\ref{sec:MM} introduces the basic Markov chain model. Later, Section~\ref{sec:HMM} expands the Markov chain to a more complicated Hidden Markov Model by introducing hidden variables.
+The patients visits can be seen as time sequential data consisting of a series of events. The events in one visit are not generated independently and randomly. Instead, past events have an effect on the type of the next possible event. To handle sequential data, Markov models are the correct choice since they consider the relation between consecutive observations. In the following context, Section~\ref{sec:MM} introduces the basic Markov chain model. Later, Section~\ref{sec:HMM} expands the Markov chain to a more complicated Hidden Markov Model by introducing hidden variables.
 
 \section{Discrete Markov Process}
 \label{sec:MM}
-Consider a system having \(N\) distinct states \(S_1, S_2, \cdots, X_N\). At any time, the system will be in one of these states. After a given time period \(t\), a series obeservation \(x_1, x_2, \cdots, x_t\) can be obtained. (Without loss of generality, the following discussion assumes the variables are all scalar. The assumption holds in the rest of the context unless explicitly stated otherwise) According to the prodcut rule of probability, the joint probability distribution for this sequence of observations is
+Consider a system having \(N\) distinct states \(\{S_1, S_2, \cdots, X_N\}\). At any time, the system will be in one of these states. After a given time period \(t\), a series observation \(\{x_1, x_2, \cdots, x_t\}\) can be obtained. (Without loss of generality, the following discussion assumes the variables are all scalar. The assumption holds in the rest of the context unless explicitly stated otherwise) According to the product rule of probability, the joint probability distribution for this sequence of observations is
 \begin{equation}
 	p(x_1, x_2, \cdots, x_t) = \prod_{i = 2}^{t} p(x_i \mid x_1, \cdots, x_{i-1})
 \end{equation}
 
-The conditional probability distribution of each observation \(x_i\) depends on all observations having a smaller index than it. The above relations between the observations can be represented graphically in Fig~\ref{fig:MM}(a). The graph is fully connected, and no independence property can be obtained from it. Now assume that each observation \(x_i\) only depends on one immediate previous observation \(x_{i-1}\). Then the joint distribution becomes 
+The conditional probability distribution of each observation \(x_i\) depends on all observations having a smaller index than it. The above relations between the observations can be represented graphically in Figure~\ref{fig:MM}(a). The graph is fully connected, and no independence property can be obtained from it. Now assume that each observation \(x_i\) only depends on one immediate previous observation \(x_{i-1}\). Then the joint distribution becomes 
 \begin{equation}
 	p(x_1, x_2, \cdots, x_t) = p(x_1)\prod_{i = 2}^{t} p(x_i \mid x_{i-1})
 \end{equation}
-This newly obtained model is depicted in Fig~\ref{fig:MM}(b), and is referred as \textit{first-order Markov chain}. The term \textit{first-order} indicates the dependence on only one previous observation. Suppose the system has only 3 states, as shown in Fig~\ref{fig:MM}(c). Then, to fully represent the system, the only required information is the transition probabilities between different sates. The transition probabilities are usually refered as \textit{transition matrix}, denoted as \(\mathbf{A}\). Each element \(A_{ij}\) represents the probability of transfering from state \(s_i\) to state \(s_j\). Learning the parameters of this model is very simple. Since the states are exactly the observations, \(A_{ij}\) can be simply obatained by compute the frequency of transfering to \(s_j\) starting from \(s_i\). The number of free parameters in this model is \(K(K-1)\), where \(K\) represents the number of states in the system.
+This newly obtained model is depicted in Figure~\ref{fig:MM}(b), and is referred as \textit{first-order Markov chain}. The term \textit{first-order} indicates the dependence on only one previous observation. Suppose the system has only 3 states, as shown in Figure~\ref{fig:MM}(c). Then, to fully represent the system, the only required information is the transition probabilities between different sates. The transition probabilities are usually referred as \textit{transition matrix}, denoted as \(\mathbf{A}\). Each element \(A_{ij}\) represents the probability of transferring from state \(s_i\) to state \(s_j\). Learning the parameters of this model is very simple. Since the states are exactly the observations, \(A_{ij}\) can be simply obtained by compute the frequency of transferring to \(s_j\) starting from \(s_i\). The number of free parameters in this model is \(K(K-1)\), where \(K\) represents the number of states in the system.
 
 \begin{figure}[!ht]
 	\begin{center}
@@ -27,18 +27,11 @@ This newly obtained model is depicted in Fig~\ref{fig:MM}(b), and is referred as
 	\end{center}
 \end{figure}
 
-Sometimes, the observations can depend on more than one observations in the past. One simple way to achieve this is creating a higer order Markov chain. By allowing each observation to depend on previous two values, a second-order Markov chain is obtained, as shown in Fig~\ref{fig:secondOrderMM}. Then the joint distribution becomes
+Sometimes, the observations can depend on more than one observations in the past. One simple way to achieve this is creating a higher order Markov chain. By allowing each observation to depend on previous two values, a second-order Markov chain is obtained, as shown in Figure~\ref{fig:secondOrderMM}. Then the joint distribution becomes
 \begin{equation}
 	p(x_1, x_2, \cdots, x_t) = p(x_1)p(x_2 \mid x_1)\prod_{i = 3}^{t} p(x_i \mid x_{i-1}, x_{i-2})
 \end{equation}
-Compared to \textit{first-order Markov chain}, the \textit{second-order Markov chain} has better capability of modelling complex relations between varaibles. In fact, the higher the order is, the more flexible the model is. However, the number of parameters grows as well, which makes the model difficult to train. For a \(M^{th}\) order markov chain, there will be \(K^{M}(K-1)\) parameters. Because the exponential growth in number of parameters, the model gardually becomes impractial as \(M\) grows. 
-
-The markov chain model can be expanded in another way, by associating an emission distribution \(\mathbf{E}_k\), \(k = 1, \cdots , K\), to each state in the system. Thus, two observations \(x_i\), \(y_i\) exist at any time, where \(y_i\) is generated depending on \(x_i\). If the expansion is based on a first-order Markov chain, the joint distribution becomes
-\begin{equation}
-	p(x_1, y_1, \cdots, x_t, y_t) = p(x_1)\big(\prod_{i = 2}^{t} p(x_i \mid x_{i-1})\big)\big(\prod_{i=1}^{t}p(y_i|x_i)\big)
-\end{equation}
-
-The patient visits can be seen as an example of this expanded model. For each visit, the patient will go through a series of events, which can be considered as states. Each event will then last for a certain period of time. The duration can be seen as generated from a distribution, and the parameters of this distribution depend on the event. The example is shown in Fig~\ref{fig:patientMM}.
+Compared to \textit{first-order Markov chain}, the \textit{second-order Markov chain} has better capability of modelling complex relations between variables. In fact, the higher the order is, the more flexible the model is. However, the number of parameters grows as well, which makes the model difficult to train. For a \(M^{th}\)-order Markov Chain, there will be \(K^{M}(K-1)\) parameters. Because the exponential growth in number of parameters, the model gradually becomes impractical as \(M\) grows. 
 
 \begin{figure}[!ht]
 	\begin{center}
@@ -48,25 +41,32 @@ The patient visits can be seen as an example of this expanded model. For each vi
 	\end{center}
 \end{figure}
 
+
+\section{Hidden Markov Model}
+\label{sec:HMM}
+The simple Markov Chain model is not enough for modelling the patient visit sequence. The variables \(\{x_1, x_2, \cdots, x_t\}\) can be considered as the patient states, namely \texttt{ENROLLING}, etc. However, the visit sequence also contains time part. To integrate the time part into the model, the Markov Chain model can be expanded in another way, by associating an emission distribution \(\mathbf{E}_k\), \(k = 1, \cdots , K\), to each state in the system. Thus, two observations \(x_i\), \(y_i\) exist at any time, where \(y_i\) is generated depending on \(x_i\). If the relation between \(\{x_1, x_2, \cdots, x_t\}\) is modelled as a first-order Markov chain, the joint distribution becomes
+\begin{equation}
+	p(x_1, y_1, \cdots, x_t, y_t) = p(x_1)\big(\prod_{i = 2}^{t} p(x_i \mid x_{i-1})\big)\big(\prod_{i=1}^{t}p(y_i|x_i)\big)
+\end{equation}
+where \(x_i\) represents the patient state and \(y_i\) represents the associated duration. For each visit, the patient goes through a series of events, which is the patient state. Each event will then last for a certain period of time. The duration can be seen as generated from a distribution, and the parameters of this distribution depend on the event. One example is shown in Figure~\ref{fig:patientMM}. This model is in fact a special case of Hidden Markov Model. This section explores Hidden Markov Model in details.
+
 \begin{figure}[!ht]
 	\begin{center}
 		\includegraphics[width=0.8\textwidth]{images/patientMM}
-		\caption{Modelling a patient visit as an expansion of first-order Markov model.}
+		\caption{Modelling a patient visit as a special case of Hidden Markov Model.}
 		\label{fig:patientMM}
 	\end{center}
 \end{figure}
 
+\subsection{Definition of Hidden Markov Model}
+As mentioned in the last section, a trade-off between flexibility and practicality exists in deciding the order number for a Markov chain model. In special situations, such as speech recognition, very high-order Markov chain is expected. But the computation resource requires as few number of parameters as possible. It would be ideal if a model is not limited to any specific given order, and still only limited number of parameters are required to specify the model. Luckily, these requirements can be satisfied by constructing a Hidden Markov Model using additional latent variables. 
 
-\section{Hidden Markov Models}
-\label{sec:HMM}
-As mentioned in the last section, a tradeoff between flexibility and practicality exists in deciding the order number for a Markov chain model. In special situations, such as speech recognition, very high-order Markov chain is expected. But the computation resource requires as few number of parameters as possible. It would be ideal if a model is not limited to any specific given order, and still only limited number of parameters are required to specify the model. Luckily, these requirements can be satisfied by constructing a Hidden Markov Model using additional latent variables. 
-
-Suppose a sequence of observations \(\mathbf{X} = \{x_1, \cdots, x_N\}\) is obtained. In stead of assuming each observation depends directly on a specific number of previous observations, the new assumption is that, there is a latent variable \(z_i\) corresponding to each observation, and the latent variables form a Markov chain. The latent variables don't have to possess any physical meanings. They can even be of different type to the observations, in terms of distribution and dimensionality. A graphical representation of this model is shown in Fig~\ref{fig:HMM}. It's easy to get confused by comparing Fig~\ref{fig:patientMM} and Fig~\ref{fig:HMM} since they share the same graphical structure. The difference is that, in Fig~\ref{fig:HMM}, the \(z_i\)'s are unobserved latent variables, which is depicted using unfilled circles. While in Fig~\ref{fig:patientMM}, both events and duration are observed values. All observed variables are represented using filled circles. If the HMM is applied to the patient visits, one potential structure could be the one shown in Fig~\ref{fig:patientHMM}. In this model, the value of latent variable determines which event will generate, then the event determines how long the duration will be. Notice that the latent variables don't have any associated physical meaning or specific distribution form. One can explain them as indication of the functioning statu of the system by selecting them to be binary variables. When \(z_i\) = 1, it indicates the queue system in the hospital is working in normal mode. When \(z_i\) = 0, it means the system is working in a problametic way.
+Suppose a sequence of observations \(\mathbf{X} = \{x_1, \cdots, x_N\}\) is obtained. In stead of assuming each observation depends directly on a specific number of previous observations, the new assumption is that, there is a latent variable \(z_i\) corresponding to each observation, and the latent variables form a Markov chain. The latent variables don't have to possess any physical meanings. They can even be of different type to the observations, in terms of distribution and dimensionality. A graphical representation of this model is shown in Figure~\ref{fig:HMM}. It's easy to get confused by comparing Figure~\ref{fig:patientMM} and Figure~\ref{fig:HMM} since they share the same graphical structure. The difference is that, in Figure~\ref{fig:HMM}, the \(z_i\)'s are unobserved latent variables, which is depicted using unfilled circles. While in Figure~\ref{fig:patientMM}, both events and duration are observed values. All observed variables are represented using filled circles. Despite the fact there are no unobserved variables in Figure~\ref{fig:patientMM}, it still belongs to HMM. In this model, we are just lucky to have the luxury to obtain all variables. It is possible to add additional latent variables into this model. One potential structure could be the one shown in Figure~\ref{fig:patientHMM}. Intuitively, in this model, the value of the newly added latent variable determines which event will generate, then the event determines how long the duration will be. Notice that the latent variables don't have any associated physical meaning or specific distribution form. One can explain them as indication of the functioning status of the system by selecting them to be binary variables. When \(z_i\) = 1, it indicates the queue system in the hospital is working in normal mode. When \(z_i\) = 0, it means the system is working in a problematic way.
 
 \begin{figure}[!ht]
 	\begin{center}
 		\includegraphics[scale = 0.8]{images/HMM}
-		\caption{Graphical representation of a Hidden Markov Model. Observations are represented using filled circles, whilc latent variables are depicted using unfilled circles. The latent variables form a first-order Markov chain.}
+		\caption{Graphical representation of a Hidden Markov Model. Observations are represented using filled circles, while latent variables are depicted using unfilled circles. The latent variables form a first-order Markov chain.}
 		\label{fig:HMM}
 	\end{center}
 \end{figure}
@@ -93,22 +93,22 @@ There are three basic problems in HMM.~\cite{rabiner1989tutorial}  These problem
 	\item Problem 2: What's the value of the parameters which maximizes \(p(\mathbf{X} \mid \boldsymbol{\theta})\)?
 	\item Problem 3: Given a sequence of observations \(\mathbf{X} = \{x_1, \cdots, x_N\}\), what is the value of the corresponding latent variables?
 \end{itemize}
-The rest of the context focus on the first two questions. The reason is that, once the value of \(p(\mathbf{X} \mid \boldsymbol{\theta})\) is computed, the decision on whether a given sequence is anomaly can be made by comparing \(p(\mathbf{X} \mid \boldsymbol{\theta})\) to a threshould value.
+If luxury of observing the latent variable is available, these three problems becomes trivial. But if we do not have this luxury, these three problems becomes very complicated. The rest of the context focus on the first two questions, assuming the latent variable are unobservable. The reason is that, once the value of \(p(\mathbf{X} \mid \boldsymbol{\theta})\) is computed, the decision on whether a given sequence is anomaly can be made by comparing \(p(\mathbf{X} \mid \boldsymbol{\theta})\) to a threshold value.
 
 Though it seems more intuitive that finding a way to evaluate \(p(\mathbf{X} \mid \boldsymbol{\theta})\) should come before maximizing it with respect to the parameters, it would be more convenient to start at solving problem 2. After solving problem 2, the solution to the first problem will appear naturally. The following discussion begins by introducing some new concepts and notations.
 
-The distribution over only observed variables \(p(\mathbf{X} \mid \boldsymbol{\theta})\) is usually refered as \textit{incomplete likelihood}, while distribution over both observed and unobserved variables \(p(\mathbf{X}, \mathbf{Z} \mid \boldsymbol{\theta})\) is refered as \textit{complete likelihood}. Using formula~(\ref{eq:HMMcomplete}), the logarithm of incomplete likelihood can be represented as
+The distribution over only observed variables \(p(\mathbf{X} \mid \boldsymbol{\theta})\) is usually referred as \textit{incomplete likelihood}, while distribution over both observed and unobserved variables \(p(\mathbf{X}, \mathbf{Z} \mid \boldsymbol{\theta})\) is referred as \textit{complete likelihood}. Using formula~(\ref{eq:HMMcomplete}), the logarithm of incomplete likelihood can be represented as
 \begin{equation}
 	\begin{split}
 		\ln p(\mathbf{X} \mid \boldsymbol{\theta}) & = \ln \sum_{\mathbf{Z}}p(\mathbf{X}, \mathbf{Z} \mid \boldsymbol{\theta}) \\
 										   & = \ln p(z_1 \mid \pi)  + \ln \sum_{\mathbf{Z}}\Big( \big(\prod_{n=2}^{N}p(z_n\mid z_{n-1}, \mathbf{A})\big) \big(\prod_{m=1}^{N}p(x_m\mid z_m, \phi)\big)\Big)
 	\end{split}
 \end{equation}
-The above formula is a generalization of the \textit{mixture distribution}~\cite{PRML}. Maximizing this formula with respect to the parameters is very difficult since the derivatives don't have a closed form. An alternative practical working algorithm is the \textit{expectation-maximization(EM)} algorithm~\cite{dempster1977maximum}\cite{mclachlan2007algorithm}. The EM algorithm is very similiar to the K-Means algorithm mentioned in Chapter~\ref{chapter:clustering}. The algorithm consists of two steps, E-step and M-step. In the E-step, the algorithm fixes the value of parameters and find the posterior distribution of the laten variables \(p(\mathbf{Z} \mid \mathbf{X}, \boldsymbol{\theta}^{old})\). Here the notation is adopted from Bishop's~\cite{PRML}. The superscription \textit{old} in \(\theta^{old}\) means the parameter is fixed. Then the algorithm computes the expectation of the logarithm of the complete likelihood, with respect to the derived posterior distribution. The newly derived term becomes a function of \(\boldsymbol{\theta}\), which is shown below
+The above formula is a generalization of the \textit{mixture distribution}~\cite{PRML}. Maximizing this formula with respect to the parameters is very difficult since the derivatives don't have a closed form. An alternative practical working algorithm is the \textit{expectation-maximization(EM)} algorithm~\cite{dempster1977maximum}\cite{mclachlan2007algorithm}. The EM algorithm is very similar to the K-Means algorithm mentioned in Chapter~\ref{chapter:clustering}. The algorithm consists of two steps, E-step and M-step. In the E-step, the algorithm fixes the value of parameters and find the posterior distribution of the latent variables \(p(\mathbf{Z} \mid \mathbf{X}, \boldsymbol{\theta}^{old})\). Here the notation is adopted from Bishop's~\cite{PRML}. The superscription \textit{old} in \(\theta^{old}\) means the parameter is fixed. Then the algorithm computes the expectation of the logarithm of the complete likelihood, with respect to the derived posterior distribution. The newly derived term becomes a function of \(\boldsymbol{\theta}\), which is shown below
 \begin{equation}
 	Q(\boldsymbol{\theta}, \boldsymbol{\theta}^{old}) = \sum_{\mathbf{Z}}p(\mathbf{Z}\mid \mathbf{X}, \boldsymbol{\theta}^{old})\ln p(\mathbf{X}, \mathbf{Z} \mid \boldsymbol{\theta})
 \end{equation}
-Then in the M-step,  the new value of \(\boldsymbol{\theta}\) is updated by maximizing \(Q(\boldsymbol{\theta}, \boldsymbol{\theta}^{old})\). Compared to K-Means, the E-step corresponds to assign each point to a cluster prototype, and the M-step corresponds to update the value of the prototypes. These two steps are excecuted alternatively until convergence or maximum number of iteration is reached. In the rest context, \(\gamma(\mathbf{z}_n)\) and \(\gamma(\mathbf{z}_{n-1}, \mathbf{z}_n)\) are introduced which stands for the posterior distribution of a single latent variable and the joint posterior distribution over two consecutive latent variables, seperately. Instead of assuming the latent variables are scalar, here they are represented using \textit{1-of-K} coding. Namely, each latent variable is a length \(K\) vector, where one and only one of these \(K\) elements equals 1. When \(z_{nk} = 1\), it means the \(nth\) latent variable is in the \(kth\) state. Using this representation schema, following equations are obtained
+Then in the M-step,  the new value of \(\boldsymbol{\theta}\) is updated by maximizing \(Q(\boldsymbol{\theta}, \boldsymbol{\theta}^{old})\). Compared to K-Means, the E-step corresponds to assign each point to a cluster prototype, and the M-step corresponds to update the value of the prototypes. These two steps are executed alternatively until convergence or maximum number of iteration is reached. In the rest context, \(\gamma(\mathbf{z}_n)\) and \(\gamma(\mathbf{z}_{n-1}, \mathbf{z}_n)\) are introduced which stands for the posterior distribution of a single latent variable and the joint posterior distribution over two consecutive latent variables, separately. Instead of assuming the latent variables are scalar, here they are represented using \textit{1-of-K} coding. Namely, each latent variable is a length \(K\) vector, where one and only one of these \(K\) elements equals 1. When \(z_{nk} = 1\), it means the \(nth\) latent variable is in the \(kth\) state. Using this representation schema, following equations are obtained
 \begin{align}
 	\gamma(\mathbf{z}_n) = &p(\mathbf{z}_n | \mathbf{X}, \boldsymbol{\theta}^{old})	\\
 	\gamma(\mathbf{z}_{n-1}, \mathbf{z}_n) = &p(\mathbf{z}_{n-1}, \mathbf{z}_n | \mathbf{X}, \boldsymbol{\theta}^{old}) \\
@@ -121,7 +121,7 @@ Computation in the M-step is relatively easy. Assume the E-step has been done, s
 	\pi_k = & \frac{\gamma(z_{1k})}{\sum_{j=1}^{K}\gamma(z_{1j})}	\\
 	A_{jk} = & \frac{\sum_{n=2}^{N}\gamma(z_{n-1,j},z_{nk})}{\sum_{l=1}^{K}\sum_{n=2}^{N}\gamma(z_{n-1,j},z_{nl})}
 \end{align}
-Updation of \(\phi_k\) is more tricky, since it depends on the specific choice of the emission distribution. One good observation is that, only the final term depends on \(\phi_k\), and different \(\phi_k\) doesn't couple with each other. Thus, each \(\phi_k\) can be updated seperately. The term \(\gamma(z_{nk})\) functions as a soft assignment, representing the probability of assigning a point \(x_n\) to each state.
+Update of \(\phi_k\) is more tricky, since it depends on the specific choice of the emission distribution. One good observation is that, only the final term depends on \(\phi_k\), and different \(\phi_k\) doesn't couple with each other. Thus, each \(\phi_k\) can be updated separately. The term \(\gamma(z_{nk})\) functions as a soft assignment, representing the probability of assigning a point \(x_n\) to each state.
 
 Computation in E-step is more difficult which requires efficient algorithm. The most widely used algorithm is known as \textit{alpha-beta} algorithm. This algorithm can be seen as an application of dynamic programming technique which takes advantage of the tree structure in HMM thus leading to efficiency. To start with the alpha-beta algorithm, following conditional independence properties should be obtained first~\cite{jordan2003introduction}
 \begin{align}
@@ -151,11 +151,11 @@ Using the other two conditional independence properties, \(\alpha(\mathbf{z}_n)\
 						 &=  p(x_n | \mathbf{z}_n) \sum_{\mathbf{z}_{n-1}} \alpha(\mathbf{z}_{n-1})p(\mathbf{z}_n | \mathbf{z}_{n-1})
 	\end{split}
 \end{equation}
-Similiarly, \(\beta(\mathbf{z}_n)\) can also be expressed recursively as
+Similarly, \(\beta(\mathbf{z}_n)\) can also be expressed recursively as
 \begin{equation}
 	\beta(\mathbf{z}_n) = \sum_{\mathbf{z}_{n+1}}\beta(\mathbf{z}_{n+1})p(x_{n+1}|\mathbf{z}_{n+1})p(\mathbf{z}_{n+1}|\mathbf{z}_n)
 \end{equation}
-The term \(\alpha(\mathbf{z}_n)\) can be seen as messages propagated from the beginning to the end. Each \(\alpha(\mathbf{z}_n)\) receives messages passed from its predecessor, combines these information with its own information and then pass them to its successor. The logical also applies to the term \(\beta(\mathbf{z}_n)\), but the messages are from the end to the beginning. Due to the tree strucutre in HMM, computing each term only depends on one adjacent term, instead of all terms before/after it. Thus, the computation reduces dramatically which makes the algorithm efficient. To start the whole computation, initial conditions \(\alpha(\mathbf{z}_1)\) and \(\beta(\mathbf{z}_n)\) are required. The initial conditions are given below
+The term \(\alpha(\mathbf{z}_n)\) can be seen as messages propagated from the beginning to the end. Each \(\alpha(\mathbf{z}_n)\) receives messages passed from its predecessor, combines these information with its own information and then pass them to its successor. The logical also applies to the term \(\beta(\mathbf{z}_n)\), but the messages are from the end to the beginning. Due to the tree structure in HMM, computing each term only depends on one adjacent term, instead of all terms before/after it. Thus, the computation reduces dramatically which makes the algorithm efficient. To start the whole computation, initial conditions \(\alpha(\mathbf{z}_1)\) and \(\beta(\mathbf{z}_n)\) are required. The initial conditions are given below
 \begin{align}
 	\alpha(\mathbf{z}_1) &= \prod_{k=1}^{K}\{\pi_k p(x_1 | \phi_k) \}^{z_{1k}}	\\
 	\beta(\mathbf{z}_N) &= 1
@@ -178,97 +178,3 @@ where \(\mathbf{z}_n\) is an arbitrary latent variable. If \(n = N\), then \(\be
 	p(\mathbf{X}) = \sum_{\mathbf{z}_N} \alpha(\mathbf{z}_N)
 \end{equation}
 Then, both problem 1 and problem 2 are solved.
-
-%Introduce EM, then gamma(z_k), then alpha-beta algorithm. At the end talk about scaling if necessary.
-% Skip the example part since it's not really related to our anomaly detection task.
-
-
-
-%You have now stated your problem, and you are ready to do something
-%about it!  \emph{How} are you going to do that? What methods do you
-%use?  You also need to review existing literature to justify your
-%choices, meaning that why you have chosen the method to be applied in
-%your work.
-%
-%% An example of a traditional LaTeX table
-%% ------------------------------------------------------------------
-%% A note on underfull/overfull table cells and tables:
-%% ------------------------------------------------------------------
-%% In professional typography, the width of the text in a page is always a lot
-%% less than the width of the page. If you are accustomed to the (too wide) text
-%% areas used in Microsoft Word's standard documents, the width of the text in
-%% this thesis layout may suprise you. However, text in a book needs wide
-%% margins. Narrow text is easier to read and looks nicer. Longer lines are 
-%% hard to read, because the start of the next line is harder to locate when
-%% moving from line to the next. 
-%% However, tables that are in the middle of the text often would require a wider
-%% area. By default, LaTeX will complain if you create too wide tables with
-%% ``overfull'' error messages, and the table will not be positioned properly
-%% (not centered). If at all possible, try to make the table narrow enough so
-%% that it fits to the same space as the text (total width = \textwidth).
-%% If you do need more space, you can either
-%% 1) ignore the LaTeX warnings 
-%% 2) use the textpos-package to manually position the table (read the package
-%%    documentation)
-%% 3) if you have the table as a PDF document (of correct size, A4), you can use
-%%    the pdfpages package to include the page. This overrides the margin
-%%    settings for this page and LaTeX will not complain.
-%% ------------------------------------------------------------------
-%% Another note:
-%% ------------------------------------------------------------------
-%% If your table fits to \textwidth, but the cells are so narrow that the text
-%% in p{..}-formatted cells does not flow nicely (you get underfull warnings 
-%% because LaTeX tries to justify the text in the cells) you can manually set
-%% the text to unjustified by using the \raggedright command for each cell 
-%% that you do not want to be justified (see the example below). \raggedleft 
-%% is also possible, of course...
-%% ------------------------------------------------------------------
-%% If you need to have linefeeds (\\) inside a cell, you must create a new
-%% paragraph-formatting environment inside the cell. Most common ones are 
-%% the minipage-environment and the \parbox command (see LaTeX documentation
-%% for details; or just google for ``LaTeX minipage'' and ``LaTeX parbox'').
-%\begin{table}
-%\begin{tabular}{|p{2cm}|p{3.8cm}|p{4.5cm}|p{1.1cm}|} 
-%% Alignment of sells: l=left, c=center, r=right. 
-%% If you want wrapping lines, use p{width} exact cell widths.
-%% If you want vertical lines between columns, write | above between the letters
-%% Horizontal lines are generated with the \hline command:
-%\hline % The line on top of the table
-%\textbf{Code} & \textbf{Name} & \textbf{Methods} & \textbf{Area} \\ 
-%\hline 
-%% Place a & between the columns
-%% In the end of the line, use two backslashes \\ to break the line,
-%% then place a \hline to make a horizontal line below the row 
-%T-110.6130 & Systems Engineering for Data Communications
-%    Software & \raggedright Computer simulations, mathematical modeling,
-%  experimental research, data analysis, and network service business
-%  research methods, (agile method) & T-110 \\ 
-%\hline
-%\multicolumn{2}{|p{6.25cm}|}{Mat-2.3170 Simulation (here is an example of
-% multicolumn for tables)}& Details of how to build simulations & T-110 \\
-%% The multicolumn command takes the following 3 arguments: 
-%% the number of cells to merge, the cell formatting for the new cell, and the
-%% contents of the cell
-%\hline
-%S-38.3184 & Network Traffic Measurements and Analysis 
-%& \raggedright How to measure and analyse network
-%  traffic & T-110 \\ \hline
-%\end{tabular} % for really simple tables, you can just use tabular
-%% You can place the caption either below (like here) or above the table
-%\caption{Research methodology courses}
-%% Place the label just after the caption to make the link work
-%\label{table:courses}
-%\end{table} % table makes a floating object with a title
-%
-%If you have not yet done any (real) metholodogical courses (but chosen
-%introduction courses of different areas that are listed in the
-%methodological courses list), now is the time to do so or at least
-%check through material of suitable methodological courses. Good
-%methodologial courses that consentrates especially to methods are
-%presented in Table~\ref{table:courses}. Remember to explain the
-%content of the tables (as with figures). In the table, the last column
-%gives the research area where the methods are often used. Here we used
-%table to give an example of tables. Abbreviations and Acronyms is also
-%a long table. The difference is that longtables can continue to next
-%page.
-%
