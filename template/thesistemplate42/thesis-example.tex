@@ -1,38 +1,3 @@
-% Lines starting with a percent sign (%) are comments. LaTeX will 
-% not process those lines. Similarly, everything after a percent 
-% sign in a line is considered a comment. To produce a percent sign
-% in the output, write \% (backslash followed by the percent sign). 
-% ==================================================================
-% Usage instructions:
-% ------------------------------------------------------------------
-% The file is heavily commented so that you know what the various
-% commands do. Feel free to remove any comments you don't need from
-% your own copy. When redistributing the example thesis file, please
-% retain all the comments for the benefit of other thesis writers! 
-% ==================================================================
-% Compilation instructions: 
-% ------------------------------------------------------------------
-% Use pdflatex to compile! Input images are expected as PDF files.
-% Example compilation:
-% ------------------------------------------------------------------
-% > pdflatex thesis-example.tex
-% > bibtex thesis-example
-% > pdflatex thesis-example.tex
-% > pdflatex thesis-example.tex
-% ------------------------------------------------------------------
-% You need to run pdflatex multiple times so that all the cross-references
-% are fixed. pdflatex will tell you if you need to re-run it (a warning
-% will be issued)  
-% ------------------------------------------------------------------
-% Compilation has been tested to work in ukk.cs.hut.fi and kosh.hut.fi
-% - if you have problems of missing .sty -files, then the local LaTeX
-% environment does not have all the required packages installed.
-% For example, when compiling in vipunen.hut.fi, you get an error that
-% tikz.sty is missing - in this case you must either compile somewhere
-% else, or you cannot use TikZ graphics in your thesis and must therefore
-% remove or comment out the tikz package and all the tikz definitions. 
-% ------------------------------------------------------------------
-
 % General information
 % ==================================================================
 % Package documentation:
@@ -269,8 +234,6 @@
 \newcommand{\TITLE}{Spot Anomalies from Patient Visits Data}
 \newcommand{\SUBTITLE}{}
 \newcommand{\DATE}{June 18, 2011}
-\newcommand{\FDATE}{18. kes‰kuuta 2011}
-\newcommand{\SDATE}{Den 18 Juni 2011}
 
 % Supervisors and instructors
 % ------------------------------------------------------------------
@@ -284,11 +247,10 @@
 %\newcommand{\FSUPERVISOR}{Professori Antti Yl‰-J‰‰ski}
 %\newcommand{\SSUPERVISOR}{Professor Antti Yl‰-J‰‰ski}
 % Example of twosupervisors:
-\newcommand{\SUPERVISOR}{Professor Antti Yl‰-J‰‰ski\\
-  Professor Pekka Perustieteilij‰}
+\newcommand{\SUPERVISOR}{Professor Juho Rousu}
 
 % If you have only one instructor, just write one name here
-\newcommand{\INSTRUCTOR}{Olli Ohjaaja M.Sc. (Tech.)}
+\newcommand{\INSTRUCTOR}{Jaakko Hollm\'{e}n Ph.D.}
 % If you have two instructors, separate them with \\ to create linefeeds
 % \newcommand{\INSTRUCTOR}{Olli Ohjaaja M.Sc. (Tech.)\\
 %  Elli Opas M.Sc. (Tech)}
@@ -301,8 +263,7 @@
 % of the supervisors in the cover page. If the following command is defined,
 % then the supervisor names shown here are printed in the cover page. Otherwise,
 % the supervisor names defined above are used.
-\newcommand{\COVERSUPERVISOR}{Professor Antti Yl‰-J‰‰ski, Aalto University\\
-  Professor Pekka Perustieteilij‰, University of Helsinki}
+%\newcommand{\COVERSUPERVISOR}{Professor Juho Rousu}
 
 % The same option is for the instructors, if you have multiple instructors.
 % \newcommand{\COVERINSTRUCTOR}{Olli Ohjaaja M.Sc. (Tech.), Aalto University\\
@@ -311,11 +272,10 @@
 
 % Other stuff
 % ------------------------------------------------------------------
-\newcommand{\PROFESSORSHIP}{Data Communication Software}
+\newcommand{\PROFESSORSHIP}{Machine Learning and Data Mining}
 % Professorship code is the same in all languages
 \newcommand{\PROFCODE}{T-110}
-\newcommand{\KEYWORDS}{ocean, sea, marine, ocean mammal, marine mammal, whales,
-cetaceans, dolphins, porpoises}
+\newcommand{\KEYWORDS}{sequence data, clustering, generative Markov models, duration modelling, Poisson distribution, negative binomial distribution}
 \newcommand{\LANGUAGE}{English}
 
 % Author is the same for all languages
@@ -402,30 +362,11 @@ cetaceans, dolphins, porpoises}
 % Abstract in English
 % ------------------------------------------------------------------
 \thesisabstract{english}{
-A dissertation or thesis is a document submitted in support of candidature
-for a degree or professional qualification presenting the author's research and
-findings. In some countries/universities, the word thesis or a cognate is used
-as part of a bachelor's or master's course, while dissertation is normally
-applied to a doctorate, whilst, in others, the reverse is true.
+Hospital operation cost rises due to the growing demand for outpatient services by increasing elderly population. To reduce the operation cost and serve the patients better, improvements on the efficiency in healthcare service institutes are required. Among several potential aspects of efficiency improvements,  smoother patient visits are highly expected. Thanks to the digital era, patient visits to the hospital can be recorded with all details. The Oulu Hospital in Finland starts to gather patient visits data since 2011, using queue system provided by X-Akseli Oy. Utilizing these collected data, this thesis aims at designing a practical way of spotting anomalies from patient visits. With the help this system, the hospital administrative stuffs could analyse the performance of the queue procedure in the hospital and optimize the procedure. Even better, the system can identify anomalies in real-time so that the patient can get immediate help when it is needed.
 
-\fixme{Abstract text goes here (and this is an example how to use fixme).} 
-Fixme is a command that helps you identify parts of your thesis that still
-require some work. When compiled in the custom \texttt{mydraft} mode, text
-parts tagged with fixmes are shown in bold and with fixme tags around them. When
-compiled in normal mode, the fixme-tagged text is shown normally (without
-special formatting). The draft mode also causes the ``Draft'' text to appear on
-the front page, alongside with the document compilation date. The custom
-\texttt{mydraft} mode is selected by the \texttt{mydraft} option given for the
-package \texttt{aalto-thesis}, near the top of the \texttt{thesis-example.tex}
-file.
+The thesis explored two categories of methods: clustering method and generative methods. Four candidate algorithms, K-Means, DBSCAN, Markov Chain, and Hidden Markov Model, are discussed. The discussion suggests that DBSCAN and Hidden Markov Model are more practical. Then we proposed a new data representation form and to use negative binomial distribution in Hidden Markov Model to model patient states durations. The experiment result was visualized using t-SNE and evaluated by user interpretation. The analyses show that both DBSCAN and Hidden Markov Model can effectively detect anomalies from patient visits data. But in terms of time and space complexity, and real-time detection, Hidden Markov Model is a better choice.
+}
 
-The thesis example file (\texttt{thesis-example.tex}), all the chapter content
-files (\texttt{1introduction.tex} and so on), and the Aalto style file
-(\texttt{aalto-thesis.sty}) are commented with explanations on how the Aalto
-thesis works. The files also contain some examples on how to customize various
-details of the thesis layout, and of course the example text works as an
-example in itself. Please read the comments and the example text; that should
-get you well on your way!}
 
 
 % Acknowledgements
@@ -440,11 +381,14 @@ get you well on your way!}
 % The star means that the chapter isn't numbered and does not 
 % show up in the TOC
 \chapter*{Acknowledgements}
+I would sincerely thank Aalto University for providing me such a great study opportunity. I have gained a lot in the past three years, not only knowledge, but also beneficial lessons for my life. These memorable moments make me think more clearly about my personal long-term life objects.
 
-I wish to thank all students who use \LaTeX\ for formatting their theses,
-because theses formatted with \LaTeX\ are just so nice.
+Next I would sincerely thank X-Akseli Oy for providing me such an opportunity to finish my master thesis. My colleagues friendly help and trust kept me working on and finally finished this challenge task. Also, I would thank Professor Juho Rosu and Doctor Jaakko Hollm\'{e}n for agreeing to supervise my thesis. Without help from these mentioned people, it is impossible for me to complete my thesis. 
 
-Thank you, and keep up the good work!
+Additional, I would like to thank my colleagues while I was working in University of Helsinki, in the group leading by Professor Teemu Roos. This invaluable experience is my first step into research world. It was in this group, that I learned how to do a research.
+
+Finally, I am really grateful to the support of my family and friends. Without their support, I am not even able to begin my master study.
+
 \vskip 10mm
 
 \noindent Espoo, \DATE
