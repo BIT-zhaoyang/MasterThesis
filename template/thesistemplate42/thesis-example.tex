@@ -47,6 +47,7 @@
 \usepackage{multirow}
 \usepackage{tabulary}
 \usepackage{rotating}
+	
 
 
 % The input files (tex files) are encoded with the latin-1 encoding 
@@ -189,7 +190,7 @@
 %                     first page of the first chapter
 %   twoinstructors  - changes the title of instructors to plural form
 %   twosupervisors  - changes the title of supervisors to plural form
-\usepackage[mydraft,twosupervisors]{aalto-thesis}
+\usepackage[mydraft]{aalto-thesis}
 %\usepackage[mydraft,doublenumbering]{aalto-thesis}
 %\usepackage{aalto-thesis}
 
@@ -218,8 +219,6 @@
 % ==================================================================
 % Change these to fit your own thesis.
 % \COMMAND always refers to the English version;
-% \FCOMMAND refers to the Finnish version; and
-% \SCOMMAND refers to the Swedish version.
 % You may comment/remove those language variants that you do not use
 % (but then you must not include the abstracts for that language)
 % ------------------------------------------------------------------
@@ -231,9 +230,9 @@
 % You can just fix the texts there. Just remember to check all the language
 % variants you use (they are all there in the same place). 
 % ------------------------------------------------------------------
-\newcommand{\TITLE}{Spot Anomalies from Patient Visits Data}
+\newcommand{\TITLE}{Anomaly Detection from Patient Visit Data}
 \newcommand{\SUBTITLE}{}
-\newcommand{\DATE}{June 18, 2011}
+\newcommand{\DATE}{September 28, 2016}
 
 % Supervisors and instructors
 % ------------------------------------------------------------------
@@ -250,7 +249,7 @@
 \newcommand{\SUPERVISOR}{Professor Juho Rousu}
 
 % If you have only one instructor, just write one name here
-\newcommand{\INSTRUCTOR}{Jaakko Hollm\'{e}n Ph.D.}
+\newcommand{\INSTRUCTOR}{Jaakko Hollm\'{e}n, D.Sc.(Tech.)}
 % If you have two instructors, separate them with \\ to create linefeeds
 % \newcommand{\INSTRUCTOR}{Olli Ohjaaja M.Sc. (Tech.)\\
 %  Elli Opas M.Sc. (Tech)}
@@ -362,9 +361,9 @@
 % Abstract in English
 % ------------------------------------------------------------------
 \thesisabstract{english}{
-Hospital operation cost rises due to the growing demand for outpatient services by increasing elderly population. To reduce the operation cost and serve the patients better, improvements on the efficiency in healthcare service institutes are required. Among several potential aspects of efficiency improvements,  smoother patient visits are highly expected. Thanks to the digital era, patient visits to the hospital can be recorded with all details. The Oulu Hospital in Finland starts to gather patient visits data since 2011, using queue system provided by X-Akseli Oy. Utilizing these collected data, this thesis aims at designing a practical way of spotting anomalies from patient visits. With the help this system, the hospital administrative stuffs could analyse the performance of the queue procedure in the hospital and optimize the procedure. Even better, the system can identify anomalies in real-time so that the patient can get immediate help when it is needed.
+Hospital operation cost rises due to the growing demand for outpatient services by increasing elderly population. To reduce the operation cost and serve the patients better, improvements on the efficiency in healthcare service institutes are required. Among several potential aspects of efficiency improvements,  smoother patient visits are highly desired. Thanks to the digital era, patient visits to the hospital can be recorded with all details. The Oulu Hospital in Finland starts to gather patient visits data since 2011, using queue system provided by X-Akseli Oy. Utilizing these collected data, this thesis aims at designing a practical way of detecting anomalies from patient visits. With the help this system, the hospital administrative staff could analyse the performance of the queue procedure in the hospital and optimize the procedure. Even better, the system can identify anomalies in real-time so that the patient can get immediate help when it is needed.
 
-The thesis explored two categories of methods: clustering method and generative methods. Four candidate algorithms, K-Means, DBSCAN, Markov Chain, and Hidden Markov Model, are discussed. The discussion suggests that DBSCAN and Hidden Markov Model are more practical. Then we proposed a new data representation form and to use negative binomial distribution in Hidden Markov Model to model patient states durations. The experiment result was visualized using t-SNE and evaluated by user interpretation. The analyses show that both DBSCAN and Hidden Markov Model can effectively detect anomalies from patient visits data. But in terms of time and space complexity, and real-time detection, Hidden Markov Model is a better choice.
+The thesis explored two categories of methods: clustering method and generative methods. Four candidate algorithms, K-Means, DBSCAN, Markov Chain, and Hidden Markov Model, are discussed. The discussion suggests that DBSCAN and Hidden Markov Model are more practical. Then we proposed a new data representation and used negative binomial distribution in Hidden Markov Model to model patient states durations. The experiment result was visualized using t-SNE and evaluated by user interpretation. The analyses show that both DBSCAN and Hidden Markov Model can effectively detect anomalies from patient visits data. But in terms of time and space complexity, and real-time detection, Hidden Markov Model is a better choice.
 }
 
 
@@ -383,9 +382,9 @@ The thesis explored two categories of methods: clustering method and generative 
 \chapter*{Acknowledgements}
 I would sincerely thank Aalto University for providing me such a great study opportunity. I have gained a lot in the past three years, not only knowledge, but also beneficial lessons for my life. These memorable moments make me think more clearly about my personal long-term life objects.
 
-Next I would sincerely thank X-Akseli Oy for providing me such an opportunity to finish my master thesis. My colleagues friendly help and trust kept me working on and finally finished this challenge task. Also, I would thank Professor Juho Rosu and Doctor Jaakko Hollm\'{e}n for agreeing to supervise my thesis. Without help from these mentioned people, it is impossible for me to complete my thesis. 
+Next I would sincerely thank X-Akseli Oy for providing me such an opportunity to finish my master thesis. My colleagues friendly help and trust kept me working on and finally finished this challenge task. Also, I would thank Juho Rousu and Jaakko Hollm\'{e}n for agreeing to supervise my thesis. Without help from these mentioned people, it is impossible for me to complete my thesis. 
 
-Additional, I would like to thank my colleagues while I was working in University of Helsinki, in the group leading by Professor Teemu Roos. This invaluable experience is my first step into research world. It was in this group, that I learned how to do a research.
+Additionally, I would like to thank my colleagues while I was working in the group leaded by Professor Teemu Roos, at University of Helsinki. This invaluable experience is my first step into research world. It was in this group, that I learned how to do a research.
 
 Finally, I am really grateful to the support of my family and friends. Without their support, I am not even able to begin my master study.
 
@@ -455,6 +454,8 @@ Finally, I am really grateful to the support of my family and friends. Without t
 \input{5implementation.tex}
 
 \input{6evaluation.tex}
+
+\input{7summary.tex}
 
 
 

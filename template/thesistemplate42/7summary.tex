@@ -1,0 +1,6 @@
+\chapter{Summary and Conclusion}
+\label{chapter:summary}
+In this thesis, we proposed a new representation for patient visit data, and explored four anomaly detection methods, K-Means, DBSCAN, Markov Chain, and Hidden Markov Model. Based on our experiments results, we suggest using Hidden Markov Model for anomaly detection from patient visit data. The model takes patient states as latent variable while takes event duration as observed variables. We further improved this method by using negative binomial to model event duration. Thanks to the luxury of observing patient states, training the model becomes easy. Once training completes, the Hidden Markov Model has the ability to score each patient in real-time and suggest potential anomalies. With information provided by the method, the hospital will be able to provide smoother visit procedure.
+
+The thesis has considered the fact that patient visit may vary in different departments. The experiment demonstrated the variation indeed exist. It is likely the patient visit may also change in different seasons, due to reasons such as holidays. To further improve the model, factors of seasons, days can also be taken into consideration in future work. 
+

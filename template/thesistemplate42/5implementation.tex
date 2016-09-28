@@ -11,12 +11,12 @@
 	% MM is enough. No need to use HMM to complicate the model. Using HMM doesn't explain intuitively, error happened in one phase doesn't lead to error in
 	%	the following phase. Different visits don't have direct impact either. Error are usually caused by operators, at least I assume it is this case.
 	
-This chapter describes the detailed experimental implementation. Following topics will be discussed:
+This chapter describes the detailed experimental design and implementation. Following topics will be discussed:
 \begin{itemize}
 	\item	Which specific data are used? How to represent the data? What preprocess has been done? What related functions are defined?
 	\item	Which methods are used? What's the reason to use such methods? 
 \end{itemize}
-The three topics will be discussed in three sections, respectively. Analysis of the result will be postponed to Chapter~\ref{chapter:evaluation}.
+The three topics will be discussed in three sections, respectively. Analysis of the result will be postponed to Chapter~\ref{chapter:results}.
 
 \section{Data Details and Representation}
 Since the X-Akseli system has gone through several update after its first release, many features have changed, including how the visit log is recorded. Considering this aspect, only data generated after year 2014 is used in the experiment. All the data are from Oulu Hospital, with patient privacy information eliminated. In total, 243K unique visits with 1.93 million entries are retrieved, which spans from January to July. The retrieved data consists of three columns: visit id, event type, and recorded time of the event. Other information, such as which resource generated the data, is not retrieved. Among the retrieved data, 7 event types are adopted. The used event types are: \texttt{ENROLLING}, \texttt{WAITING}, \texttt{IN\_TREATMENT\_ROOM}, \texttt{PAUSED}, \texttt{IN\_TREATMENT\_ROOM\_FROM\_PAUSED}, \texttt{CLOSED}, and \texttt{CANCELLED}.
@@ -27,14 +27,14 @@ $$
 $$
 it means a patient comes to the hospital, and at time 1, the patient encounters event $a$. Then at time 2, the patient encounters event $b$, and so on. The time unit can be selected arbitrarily, such as minutes, hours, or days. Huang et al.~\cite{huang2012anomaly} used days as the time unit. In their work, they tried to cluster the patient traces. However, the patient trace has different length. Thus, typical distance metrics such as euclidean distance is not applicable. To address this problem, they also proposed a new distance metric, based on edit distance.
 
-Edit distance~\ref{cormen2009introduction} is commonly used in comparing strings and biological sequences, such as proteins. Edit distance is defined as the minimum number of allowed operations used, to transform a string $s$ to another string $t$. For example, if the allowed operations are \textit{delete}, \textit{insert}, and two strings $S$ = \textit{``array''}, $T$ = \textit{``xray''} are given. Then the edit distance between $s$ and $t$ is 3, by taking 3 operations. One potential transformation is: 
+Edit distance~\cite{cormen2009introduction} is commonly used in comparing strings and biological sequences, such as proteins. Edit distance is defined as the minimum number of allowed operations used, to transform a string $s$ to another string $t$. For example, if the allowed operations are \textit{delete}, \textit{insert}, and two strings $S$ = \textit{``array''}, $T$ = \textit{``xray''} are given. Then the edit distance between $s$ and $t$ is 3, by taking 3 operations. One potential transformation is: 
 \begin{enumerate}
 	\item Delete the second letter $r$ in $S$ by $x$. Then $S$ becomes \textit{``aray''}.
 	\item Delete the first letter $a$ in $S$. Then $S$ becomes \textit{``ray''}.
 	\item Insert letter $x$ at the beginning of $S$. Then $S$ becomes \textit{``xray''}, which is the same with string $T$.
 \end{enumerate}
 
-The edit distance problem can be solved effectively by using the dynamic programming technique~\ref{cormen2009introduction}. Using terminology from dynamic programming, the optimal solution to the edit distance problem can be represented recursively
+The edit distance problem can be solved effectively by using the dynamic programming technique~\cite{cormen2009introduction}. Using terminology from dynamic programming, the optimal solution to the edit distance problem can be represented recursively
 \begin{equation*}
 D(i, j) = \begin{cases} 
    D(i-1, j-1) & \text{if } S\text{[i]} = T\text{[j]} \\
@@ -55,7 +55,7 @@ The edit distance only considers the difference between types of events, when ap
    \frac{| \sigma_i(t) - \rho_j(t) | }{max\{\sigma_i(t),~ \rho_j(t)\}}       & \text{if } \sigma_i(e) = \rho_j(e)
   \end{cases}
 \end{equation*}
-where $\sigma$ and $\rho$ are two patient traces. $\sigma_i$ is the $i$th pair of the trace. $\sigma_i(e)$ and $\sigma_i(t)$ represent the event type and timestamps of the $i$th pair in that trace. The intuition of the above formula is that, if the event types of two pairs in two traces are different, then they contribute 1 to the edit distance. If the event types are the same, then the distance is determined by the timestamps associated with the two events. The closer the timestamps are, the smaller the distance is. 
+where $\sigma$ and $\rho$ are two patient traces. $\sigma_i$ is the $i$th pair of the trace. $\sigma_i(e)$ and $\sigma_i(t)$ represent the event type and timestamps of the $i$th pair in that trace. The intuition of the above equation is that, if the event types of two pairs in two traces are different, then they contribute 1 to the edit distance. If the event types are the same, then the distance is determined by the timestamps associated with the two events. The closer the timestamps are, the smaller the distance is. 
 
 The modified edit distance seems reasonable. However, some subtle issues exist when the modified edit distance applies to Huang's~\cite{huang2012anomaly} representation. Consider two patient traces 
 \begin{align*}
