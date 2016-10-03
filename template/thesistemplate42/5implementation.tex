@@ -21,7 +21,7 @@ The three topics will be discussed in three sections, respectively. Analysis of 
 \section{Data Details and Representation}
 Since the X-Akseli system has gone through several update after its first release, many features have changed, including how the visit log is recorded. Considering this aspect, only data generated after year 2014 is used in the experiment. All the data are from Oulu Hospital, with patient privacy information eliminated. In total, 243K unique visits with 1.93 million entries are retrieved, which spans from January to July. The retrieved data consists of three columns: visit id, event type, and recorded time of the event. Other information, such as which resource generated the data, is not retrieved. Among the retrieved data, 7 event types are adopted. The used event types are: \texttt{ENROLLING}, \texttt{WAITING}, \texttt{IN\_TREATMENT\_ROOM}, \texttt{PAUSED}, \texttt{IN\_TREATMENT\_ROOM\_FROM\_PAUSED}, \texttt{CLOSED}, and \texttt{CANCELLED}.
 
-Huang et al~\cite{huang2012anomaly} proposed to represent the patient visits as a sequence of pairs. Each pair contains the information of (a).~what the event is and (b).~when this event happened. For example, given a sequence showing below
+Huang et al.~\cite{huang2012anomaly} proposed to represent the patient visits as a sequence of pairs. Each pair contains the information of (a).~what the event is and (b).~when this event happened. For example, given a sequence showing below
 $$
 \left\langle(a, 1), (b, 2), (c, 5), (d, 7)\right\rangle 
 $$
@@ -112,7 +112,7 @@ Next is to compute the dispersion to see if the data distribution really matches
 \end{equation*}
 where $\sigma^2$ and $\mu$ is the variance and mean value of the data, respectively. One caveat is very large duration time in each distribution. For example, the longest duration in \texttt{WAITING} can be over 1000. Though this situation is very rare, it incurs very large difference when computing $\mu$ and $\sigma$. In fact, such rare values can be considered as the anomalies we are trying to detect. Thus, it makes sense to ignore these cases. It's hard to decide a threshold that determines which part of data should be discarded. In the experiment, the threshold is set to 30. All duration longer than this threshould is not used while computing $\mu$ and $\sigma$. The reason of selecting 30 is that a typical event seldom lasts more than 30 minutes. In fact, $84\%$ events in this data have less than 30 minutes duration. The computed values are listed in Table~\ref{tab:dispersion}
 \begin{table}[!ht]
-	\caption{Mean, variance, and dispersion of data generated from largest department.}
+	\caption{Mean, variance, and dispersion of data generated from the largest department.}
 	\begin{center}
 		\begin{tabular}{|c|c|c|c|}
 			\hline
