@@ -9,15 +9,15 @@ Applying clustering methods in anomaly detection tasks has been studied numerous
 \section{K-Means}
 \label{sec:k-means}
 
-K-Means~\cite{lloyd1982least} is one of the simplest unsupervised algorithm which solves clustering problem. Despite its simplicity, K-Means has gained success in various situations, including anomaly detection~\cite{campello2015hierarchical}\cite{he2003discovering}, image segmentation and compression~\cite{forsyth2002computer}. K-Means is also frequently used as pre-processing for more complicated algorithms. The method can be formally defined as follow: Given a data set $\{\mathbf{x}_1, ... , \mathbf{x}_N\}$ consisting of $N$ observations in $D$-dimensional space, the object is to partition the data into $K$ groups, by defining a set of $K$ centres $\{\boldsymbol{\mu}_1, ... , \boldsymbol{\mu}_k\}$ in the same space, and assigning each observation to exactly one center point. Each center point represents a prototype associated with the $k^{th}$ cluster.
+K-Means~\cite{lloyd1982least} is one of the simplest unsupervised algorithms which solves the clustering problem. Despite its simplicity, K-Means has gained success in various situations, including anomaly detection~\cite{campello2015hierarchical}\cite{he2003discovering}, image segmentation and compression~\cite{forsyth2002computer}. K-Means is also frequently used as pre-processing for more complicated algorithms. The method can be formally defined as follows: Given a data set $\{\mathbf{x}_1, ... , \mathbf{x}_N\}$ consisting of $N$ observations in $D$-dimensional space, the object is to partition the data into $K$ groups, by defining a set of $K$ centres $\{\boldsymbol{\mu}_1, ... , \boldsymbol{\mu}_k\}$ in the same space, and assigning each observation to exactly one center point. Each center point represents a prototype associated with the $k^{th}$ cluster.
 
-The assignments can be represented using 1-of-$K$ schema. Then, for each data point $x_n$, a corresponding  $K$-dimensional variable consisting of $K$ binary elements $r_{nk} \in \{0, 1\}$ is introduced. Among these $r_{nk}$, exactly one of them equals 1, which means $\mathbf{x}_{n}$ belongs to the $k^{th}$ cluster. Using this notation, evaluation of the clustering quality can be defined using the object function as follow:
+To represent the assignment for each data point $x_n$, a corresponding  $K$-dimensional variable consisting of $K$ binary elements $r_{nk} \in \{0, 1\}$ is introduced. Among these binary elements, exactly one of them equals 1, which means $\mathbf{x}_{n}$ belongs to the $k^{th}$ cluster. This representation is know as \id{1-of-K} coding scheme. Using this notation, evaluation of the clustering quality can be defined using the objective function as follows:
 \begin{equation}	
 	\label{eq:kmeansobj}
 	J = \sum_{n=1}^{N}\sum_{k=1}^{K}r_{nk}D(\mathbf{x}_{N} - \boldsymbol{\mu}_{k})
 \end{equation}
 where $D$ is a dissimilarity metric. Common choice of the metric is $\mathit{l}_1$-norm or $\mathit{l}_2$-norm. Mahalanobis distance is also adopted while considering the covariances between the $K$-dimensions~\cite{davis1986statistics}. In the following context, $\mathit{l}_2$-norm is adopted for discussion. 
- Intuitively, this function can be considered as the distance summation of each point to its corresponding cluster prototype $\boldsymbol{\mu}_k$. The K-Means aims at finding a set of $\boldsymbol{\mu}_k$ which minimizes the object function. Finding the optimal solution for the above object function proves to be NP-Hard~\cite{aloise2009np}. However, employing heuristic algorithms enables finding converged local optimal solutions. Section~\ref{subsec:EM} describes one iterative algorithm, EM. Section~\ref{subsec:KMeansIssues} explores common issues related to K-Means and remedies.
+ Intuitively, this function can be considered as the distance summation of each point to its corresponding cluster prototype $\boldsymbol{\mu}_k$. The K-Means aims at finding a set of $\boldsymbol{\mu}_k$ which minimizes the objective function. Finding the optimal solution for the above object function proves to be NP-Hard~\cite{aloise2009np}. However, employing heuristic algorithms enables finding converged local optimal solutions. Section~\ref{subsec:EM} describes one iterative algorithm, EM. Section~\ref{subsec:KMeansIssues} explores common issues related to K-Means and remedies.
 \subsection{K-Means as a Special Case of EM Algorithm}
 \label{subsec:EM}
 
@@ -32,7 +32,7 @@ Considering the optimization in E step, a critical observation of \eqref{eq:kmea
     \end{cases}
 \end{equation}
 
-In the following M step, the above determined \(r_{nk}\) is clamped. Then, \(\boldsymbol{\mu}_k\) appears only in a quadratic term in \(J\). Setting derivatives of \(J\) with respect to \(\boldsymbol{\mu}_k\) to zero, solution for \(\boldsymbol{\mu}_k\) can be expressed in following closed form
+In the following M step, the above determined \(r_{nk}\) is clamped. Then, \(\boldsymbol{\mu}_k\) appears only in a quadratic term in \(J\). Setting derivatives of \(J\) with respect to \(\boldsymbol{\mu}_k\) to zero, solution for \(\boldsymbol{\mu}_k\) can be expressed in the following closed form
 \begin{equation}
 	\label{eq:muupdate}
 	\boldsymbol{\mu}_{k} = \frac{\sum_n r_{nk}\mathbf{x}_n}{\sum_n r_{nk}}
@@ -63,22 +63,22 @@ Despite the simplicity of K-Means, several underlying issues exists. The first p
 	\end{center}
 \end{figure}
 
-Another issues of K-Means relates to the initialization of \(\boldsymbol{\mu}_k\). Since EM finds only local optimal solutions, a poor initialization could lead to worse clustering result. To avoid this problem, it is practical to run K-Means for several times and choose the best result according to the value of the cost function.
+Another issues of K-Means relates to the initialization of \(\boldsymbol{\mu}_k\). Since EM finds only local optimal solutions, a poor initialization could lead to poor clustering result. To avoid this problem, it is practical to run K-Means for several times and choose the best result according to the value of the cost function~\cite{PRML}.
 
-One more critical issue of K-Means lies in the choice of similarity metric. As mentioned at the beginning of this chapter, variations in similarity metric leads to different clustering methods. Choosing \(l_2\) norm is convenient in terms of computation, but this choice limits the type of data variables to certain types. Using \(l_2\) norm on categorical data is inappropriate since no ordering of categorical values exists. Also, this makes computing the mean value a hard problem. To use K-Means on other data types, the similarity metric should be elaborately designed. 
+One more critical issue of K-Means lies in the choice of similarity metric. As mentioned at the beginning of this chapter, variations in similarity metric leads to different clustering methods. Choosing \(l_2\) norm is convenient in terms of computation, but this choice limits the type of data variables to certain types. Using \(l_2\) norm on categorical data is inappropriate since no ordering of categorical values exists. Though this problem can be solved by encoding categorical value properly, such as separate binary indicators, computing mean value does not make sense in this situation. Thus, to use K-Means on other data types, the similarity metric should be elaborately designed~\cite{PRML}. 
 
-Besides, K-Means tends to form clusters into a convex space. As shown in Figure~\ref{fig:EM4KMeans}(b)-(e), the boundary between two different clusters forms a line lying at the midway and is perpendicular to the line connecting two cluster prototypes. However, a cluster is not necessary to be convext. This also limits the application of K-Means.
+Besides, K-Means tends to form clusters into a convex space. As shown in Figure~\ref{fig:EM4KMeans}(b)-(e), the boundary between two different clusters forms a line lying at the midway and is perpendicular to the line connecting two cluster prototypes. However, a cluster is not necessary to be convex. This also limits the application of K-Means~\cite{sklearn:DBSCAN}.
 
-Finally, K-Means is also sensitive to noise. As shown in Equation \ref{eq:muupdate}, updating \(\boldsymbol{\mu}_k\) involves computing the mean of all data points assigned to that cluster. When noise objects with large deviation from other points in this cluster exist, update of \(\boldsymbol{\mu}_k\) will be strongly affected. 
+Finally, K-Means is also sensitive to noise. As shown in Equation \ref{eq:muupdate}, updating \(\boldsymbol{\mu}_k\) involves computing the mean of all data points assigned to that cluster. When noise objects with large deviation from other points in this cluster exist, update of \(\boldsymbol{\mu}_k\) will be strongly affected.
 
 \section{Density Based Clustering Methods}
 This section explores another type of clustering method which forms cluster from the view of density aspect. \textbf{D}ensity-\textbf{B}ased \textbf{S}patial \textbf{C}lustering of \textbf{A}pplications with \textbf{N}oise (DBSCAN)~\cite{ester1996density} considers to be one of the most successful method from this category~\cite{2014timeaward}. Compared to K-Means, DBSCAN posseses following advantages: 1).\ DBSCAN can detect clusters of arbitrary shape. 2).\ DBSCAN can determine the number of clusters automatically. 3).\ DBSCAN is robust to noise. 
 
-The following of this chapter is organized as follows. Section~\ref{subsec:DBSCANDFS} compares and reveals the relation of DBSCAN to a basic graph traversal algorithm \textbf{D}epth \textbf{F}irst \textbf{S}earch(DFS). This section will introduce the critical concept used by DBSCAN which differentiate it with DFS. Section ~\ref{subsec:DBSCANnotion} describe this concept in more details. Section~\ref{subsec:DBSCANalgorithm} compares DBSCAN and K-Means, and discusses practical issues of DBSCAN.
+The following of this chapter is organized as follows. Section~\ref{subsec:DBSCANDFS} compares and reveals the relation of DBSCAN to a basic graph traversal algorithm \textbf{D}epth \textbf{F}irst \textbf{S}earch(DFS). This section will introduce the critical concept used by DBSCAN which differentiate it with DFS. Section ~\ref{subsec:DBSCANnotion} describes this concept in more detail. Section~\ref{subsec:DBSCANalgorithm} compares DBSCAN and K-Means, and discusses practical issues of DBSCAN.
 
 \subsection{DBSCAN and DFS}
 \label{subsec:DBSCANDFS}
-Before introducing DBSCAN, it would be helpful to review a basic graph traversal algorithm, DFS, which is an algorithm which traverses or visits a graph. In the discussion of this context, the whole process is divided into two procedures \proc{DFS} and \proc{DFS-Visit}. A typical recursive implementation is described as follow. 
+Before introducing DBSCAN, it is helpful to review a basic graph traversal algorithm, DFS~\cite{cormen2009introduction}, which is an algorithm which traverses a graph. DFS is typically implemented in a recursive way. Let's assume DFS starts to traverse an undirected graph from vertex $u$. Then algorithm first labels $u$ as visited, then check if there are unvisited children $v$ of $u$. If such children exist, the DFS algorithm goes deeper by visiting these children. After the DFS terminates, vertex $u$ and all vertices reachable by $u$ will be visited. These visited nodes form a component which disconnects with other nodes in the graph. The component can then be considered as a cluster.  The criterion to form this cluster is that each pair of nodes can reach each otherthrough a path consisting of nodes only in this cluster. In the rest context, the whole process is divided into two procedures \proc{DFS} and \proc{DFS-Visit}. A typical recursive implementation is described as follows. 
 
 \begin{codebox}
 \Procname{$\proc{DFS}(G)$}
@@ -109,12 +109,10 @@ Before introducing DBSCAN, it would be helpful to review a basic graph traversal
 
 The first two lines in \proc{DFS} initializes the algorithm by setting all nodes to be unvisited. Then, the algorithm traverse vertices in the graph. Once an unvisited node is found, \proc{DFS-Visit} is called. In the procedure \proc{DFS-Visit}, the given node $u$ is labelled as visited. If an unvisited child $v$ of $u$ is found, this procedure goes one layer deeper by calling another \proc{DFS-Visit} on $v$. After finishing $\proc{DFS-Visit}(G, u)$, the algorithm backtrack to visit other unvisited children of $u$, which are siblings of $v$.
 
-Assume \proc{DFS} executes on an undirected graph. Each call of $\proc{DFS-Visit}$ on an unvisited node $u$ explores $u$ and all nodes reachable to it. These nodes form a component which disconnects with other components by other runs of $\proc{DFS-Visit}$. Thus, each component can be considered as a cluster. The criterion to form a cluster is that each pair of nodes can reach each other through a path consisting of nodes only in this cluster.
-
-DBSCAN can be seen as an application of DFS. However, DBSCAN differs from standard DFS from its usage of \proc{DFS-Visit}. In standard DFS, the algorithm goes deeper by calling $\proc{DFS-Visit}(G, v)$ on all unvisited children of node $u$. In DBSCAN, however, the algorithm goes deeper if and only if node $u$ satisfies extra conditions, which are specified by two user given value $Eps$ and $MinPts$. These extra conditions make the component generated from DBSCAN a meaningful cluster viewing from the density side. The pseudo code is shown on next page.
+DBSCAN can be seen as an application of DFS. However, DBSCAN differs from standard DFS from its usage of \proc{DFS-Visit}. In standard DFS, the algorithm goes deeper by calling $\proc{DFS-Visit}(G, v)$ on all unvisited children of node $u$. In DBSCAN, however, the algorithm goes deeper if and only if node $u$ satisfies extra conditions, which are specified by two user given value $\epsilon$ and $MinPts$. These extra conditions make the component generated from DBSCAN a meaningful cluster viewing from the density side. The pseudo code is shown on next page.
 
 \begin{codebox}
-\Procname{$\proc{DBSCAN}(S, Eps, MinPts)$}
+\Procname{$\proc{DBSCAN}(S, \epsilon, MinPts)$}
 \li	$\id{ClusterId} \gets 1$
 \li	\For each point $u \in S$
 \li	\Do
@@ -122,7 +120,7 @@ DBSCAN can be seen as an application of DFS. However, DBSCAN differs from standa
 \li		\Then	
 			\kw{continue}
 		\End		
-\li			$\attrib{u}{neighbor} \gets \proc{Region-Query}(u, Eps)$
+\li			$\attrib{u}{neighbor} \gets \proc{Region-Query}(u, \epsilon)$
 \li			\If	$\| \attrib{u}{neighbor} \| < MinPts $
 \li				\Then
 					$\attrib{u}{label} \gets \const{noise}$
@@ -134,17 +132,17 @@ DBSCAN can be seen as an application of DFS. However, DBSCAN differs from standa
 \end{codebox}
 
 \begin{codebox}
-\Procname{$\proc{Expand-Cluster}(u, \id{ClusterId}, Eps, MinPts)$}
+\Procname{$\proc{Expand-Cluster}(u, \id{ClusterId}, \epsilon, MinPts)$}
 \li	$\attrib{u}{label} \gets \id{ClusterId}$
 \li	\For each point $v \in \attrib{u}{neighbor}$
 \li	\Do
 		\If $\attrib{v}{label} \isequal \const{nil}$
 \li		\Then
 			$\attrib{v}{label} \gets \id{ClusterId}$
-\li			$\attrib{v}{neighbor} \gets \proc{Region-Query}(v, Eps)$
+\li			$\attrib{v}{neighbor} \gets \proc{Region-Query}(v, \epsilon)$
 \li				\If	$\| \attrib{v}{neighbor} \| < MinPts $
 \li				\Then
-					$\proc{Expand-Cluster}(v, \id{ClusterId}, Eps, MinPts)$
+					$\proc{Expand-Cluster}(v, \id{ClusterId}, \epsilon, MinPts)$
 				\End
 \li		\ElseIf $\attrib{v}{label} \isequal \const{noise}$
 \li		\Then
@@ -153,29 +151,37 @@ DBSCAN can be seen as an application of DFS. However, DBSCAN differs from standa
 	\End
 \end{codebox}
 
-Similar with DFS traverse, DBSCAN clustering is also divided into two procedures, \proc{DBSCAN} and \proc{Expand-Cluster}. \proc{DBSCAN} functions as a wrapper function in the same way as \proc{DFS}. This procedure goes through each point in the data set $S$. If the current point $u$ has been visited, the procedure skips it. Otherwise, further process continues. However, unlike calling \proc{DFS-Visit} on every unvisited $u$ unconditionally as \proc{DFS} does, in \proc{DBSCAN}, another procedure \proc{Expand-Cluster} is called if and only if $u$ has sufficient number of neighbours in a given range $Eps$. $\proc{Region-Query}(u, Eps)$ returns all the neighbours of $u$ with a distance no further than $Eps$. This is the extra condition mentioned earlier. Similarly, this condition is also checked in \proc{Expland-Cluster} at line 6, as opposed to \proc{DFS-Visit}. Besides these two places, the rest of the two algorithms are the same. Details of extra conditions are fully explained in next section. 
+Similar with DFS traverse, DBSCAN clustering is also divided into two procedures, \proc{DBSCAN} and \proc{Expand-Cluster}. \proc{DBSCAN} functions as a wrapper function in the same way as \proc{DFS}. This procedure goes through each point in the data set $S$. If the current point $u$ has been visited, the procedure skips it. Otherwise, further process continues. However, unlike calling \proc{DFS-Visit} on every unvisited $u$ unconditionally as \proc{DFS} does, in \proc{DBSCAN}, another procedure \proc{Expand-Cluster} is called if and only if $u$ has sufficient number of neighbours in a given range $\epsilon$. $\proc{Region-Query}(u, \epsilon)$ returns all the neighbours of $u$ with a distance no further than $\epsilon$. This is the extra condition mentioned earlier. Similarly, this condition is also checked in \proc{Expland-Cluster} at line 6, as opposed to \proc{DFS-Visit}. Besides these two places, the rest of the two algorithms are the same. Details of extra conditions are fully explained in next section. 
 
 \subsection{Notions of Density in Clusters}
 \label{subsec:DBSCANnotion}
-From the view of density, points in a space can be classified into three categories: core points, border points, and outliers/noise. The classification criterion on a point $u$ bases on the size of its $\id{Eps-neighborhood}$, denoted as $N(u;Eps)$. The $N(u;Eps)$ represents the collection of all points whose distances to $u$ are within $Eps$, which is specified by user. More formally, $N(u;Eps) = \{v\mid dist(u, v) < Eps\}$. 
+From the view of density, points in a space can be classified into three categories: core points, border points, and outliers/noise. The classification criterion on a point $u$ bases on the size of its $\id{\epsilon-neighborhood}$, denoted as $N(u;\epsilon)$. The $N(u;\epsilon)$ represents the collection of all points whose distances to $u$ are within $\epsilon$, which is specified by user. More formally, $N(u;\epsilon) = \{v\mid dist(u, v) < \epsilon\}$. 
 
-Based on above definition, a point $u$ is a core point if and only if $MinPts \leq \|N(u;Eps)\|$, where both $Eps$ and $MinPts$ are user specified. After defining core points, it is relatively easy to define the other two categories. A border point $v$ is a neighbour point of a core point $u$, but $v$ is not a core point itself. Formally, $\|N(u;Eps)\| < MinPts$, and $v \in N(u;Eps)$, where $\|N(u;Eps)\| \geq MinPts$. For a outlier, it's a point $v$ which is neither a core point itself nor a neighbour point of a core point. An example graph is showing in Fig~\ref{fig:DBSCANConcept}.
+Based on above definition, a point $u$ is a core point if and only if $MinPts \leq \|N(u;\epsilon)\|$, where both $\epsilon$ and $MinPts$ are user specified. After defining core points, it is relatively easy to define the other two categories. A border point $v$ is a neighbour point of a core point $u$, but $v$ is not a core point itself. Formally, $\|N(u;\epsilon)\| < MinPts$, and $v \in N(u;\epsilon)$, where $\|N(u;\epsilon)\| \geq MinPts$. For a outlier, it's a point $v$ which is neither a core point itself nor a neighbour point of a core point. An example graph is showing in Fig~\ref{fig:DBSCANConcept}.
 
 \begin{figure}[ht]
 	\begin{center}
 		\includegraphics[width=0.8\textwidth]{images/DBSCAN-Illustration.png}
-		\caption{Illustration of core points(red), border points(yellow), and outlier(blue)~\cite{wiki:DBSCAN}. In the illustration, $MinPts = 4$, $Eps$ is the radius of those circles.}
+		\caption{Illustration of core points(red), border points(yellow), and outlier(blue)~\cite{wiki:DBSCAN}. In the illustration, $MinPts = 4$, $\epsilon$ is the radius of those circles.}
 		\label{fig:DBSCANConcept}
 	\end{center}
 \end{figure}
 
 As show in the figure, red points are core points since in each red circle, there are at least 4 points(including the center point). While for the yellow point, they don't have enough points in their circles, but they embed in one of the red circles. Thus, they are border points. As for the blue point, it has neither enough point in the blue circle nor is in any red circle. Thus, the blue point is outlier/noise.
 
-These definitions reveal the assumption and theory of DBSCAN. DBSCAN assumes that, each cluster consists of two types of points, core points and border points. Core points form inner denser areas compared to spaces outside of clusters. Border points form a slightly sparser areas surrounding the inner core areas, but still the density is higher than spaces between different clusters, possessed by noise. In DBSCAN, the density of an area is measured by the number of points centred at $u$ within an area specified by the given radius $Eps$. If there are at least $MinPts$ points, this area is considered to be a dense area. Thus, this area is part of a cluster. In the procedure \proc{Expand-Cluster}, the algorithm will explore the whole dense area and less dense border area belonging to the same cluster. Each call of \proc{Expand-Cluster} visits a different cluster. Thus, when the whole procedure \proc{DBSCAN} finishes, different clusters are formed.
+These definitions reveal the assumption and theory of DBSCAN. DBSCAN assumes that, each cluster consists of two types of points, core points and border points. Core points form inner denser areas compared to spaces outside of clusters. Border points form a slightly sparser areas surrounding the inner core areas, but still the density is higher than spaces between different clusters, possessed by noise. In DBSCAN, the density of an area is measured by the number of points centred at $u$ within an area specified by the given radius $\epsilon$. If there are at least $MinPts$ points, this area is considered to be a dense area. Thus, this area is part of a cluster. In the procedure \proc{Expand-Cluster}, the algorithm will explore the whole dense area and less dense border area belonging to the same cluster. Each call of \proc{Expand-Cluster} visits a different cluster. Thus, when the whole procedure \proc{DBSCAN} finishes, different clusters are formed.
+
+%\subsection{Accelerating DBSCAN}
+%One critical phase in applying DBSCAN is how to efficiently compute the $\id{\epsilon-neighborhood}$.  The DBSCAN algorithm will go through several iterations. Each iteration involves computing $\id{\epsilon-neighborhood}$ for all points. The efficiency of computing $\id{\epsilon-neighborhood}$ directly determines the practicability of DBSCAN. A naive implementation is to compute a $N$ by $N$ pair-wise distance table. Then sort the rows in the matrix. After this, finding the $\id{\epsilon-neighborhood}$ takes only constant time. This process takes $O(N^2)$ space and time. The space complexity can be further reduced to $O(N)$.
+%
+%A more efficient method, vantage-point tree~\cite{yianilos1993data} can be used in the experiment. Vantage-point tree is a recursively built balanced binary tree. Each non-leaf node consists of two fields, a point functions as a center and a radius, and has two children. The center point is randomly selected from a set of available points. Initially, the set contains all data points. Then, distances from the center to all the rest points in the set is computed. Next, the radius is set to the median of the distances. After this, the point set is divided into two subsets, one consists of points with a distance shorter than the radius, the other consists of points with a distance longer than the median value. The first set is stored in the left child of current node, and the second set is stored in the right child of the current node. Intuitively, this works as drawing a circle centred on the selected center point. The circle partitions the other points into two parts, with half inside the circle, half outside the circle. This process continues until a leaf node is encountered. This building process takes $O(N \log N)$ time and $O(N \log N)$ space. 
+%
+%After building the vantage-point tree, finding the $\id{\epsilon-neighborhood}$ for a single point takes $O(\log N)$ time. Suppose the query point is $p$. Now the query enters a node centered on point $q$ and the radius of the node is $\tau$. Suppose the distance from $p$ to $q$ is $\delta < \tau$. Then the query explores only the left child of $q$ if $\delta + \epsilon \leq \tau$. Otherwise, the right child is also explored. The intuition is that, if one $\id{\epsilon-neighborhood}$ of query point $p$ is exactly $\epsilon$ far to $p$, then the distance between this neighbour point and the centred point $q$ is at most $\delta + \epsilon$. If this distance is no larger than the radius associated to the centred node, then there is no need to explore points outside the circle, which reduces the search space by half. As a result, finding $\id{\epsilon-neighborhood}$ for all points takes $O(N \log N)$ time. 
+
 
 \subsection{Analysis of DBSCAN}
 \label{subsec:DBSCANalgorithm}
-DBSCAN applies to a broader range of problems compared to K-Means. In K-Means, one of the obstacle is to compute the mean value. DBSCAN doesn't have this problem as long as the distance between points is computable. This enables DBSCAN to use more complicated distance measurement, such as edit distance, which is very useful in dealing with strings. Another advantage of DBSCAN is its robustness to noises. As mentioned in Section~\ref{subsec:KMeansIssues}, the mean value will be heavily interfere by noises/outliers. In contrast, DBSCAN has a notion noises and it is able to spot these outliers, which is a core problem of this thesis. Finally, the most important advantage of DBSCAN is that it can find arbitrarily shaped clusters. It can even separate a cluster completely surrounded by a different cluster. An example is shown in Figure~\ref{fig:KMeansDBSCAN}.
+DBSCAN applies to a broader range of problems compared to K-Means. In K-Means, one of the obstacle is to compute the mean value. DBSCAN doesn't have this problem as long as the distance between points is computable. This enables DBSCAN to use more complicated distance measurement, such as edit distance~\cite{cormen2009introduction}, which is very useful in dealing with strings. Another advantage of DBSCAN is its robustness to noises. As mentioned in Section~\ref{subsec:KMeansIssues}, the mean value will be heavily interfere by noises/outliers. In contrast, DBSCAN has a notion noises and it is able to spot these outliers, which is a core problem of this thesis. Finally, the most important advantage of DBSCAN is that it can find arbitrarily shaped clusters. It can even separate a cluster completely surrounded by a different cluster. An example is shown in Figure~\ref{fig:KMeansDBSCAN}.
 
 \begin{figure}
 	\begin{center}
@@ -185,12 +191,12 @@ DBSCAN applies to a broader range of problems compared to K-Means. In K-Means, o
 	\end{center}
 \end{figure}
 
-Similar to K-Means, DBSCAN also requires user specified parameters. To get the optimal result, a careful choice of these parameters is needed. Finding the appropriate parameter can be achieved in the similar way by finding the elbow point as mentioned in Section~\ref{subsec:KMeansIssues}. The user can pick a number for $MinPts$ first. Then, for each point, the distance from its $kth$ nearest neighbour is computed. After sorting these distances in descending order and plot them, a graph called \id{sorted k-dist graph} can be obtained. This graph reveals insights about the density distribution of the whole dataset reflected in how the \id{k-dist} varies. Then the $Eps$ can be set to the value corresponding to the elbow point. This heuristic works well as the graph won't differ too much for $k > 4$. An illustration of this approach is shown in Figure~\ref{fig:DBSCANParameter}.~\cite{ester1996density}
+Similar to K-Means, DBSCAN also requires user specified parameters. To get the optimal result, a careful choice of these parameters is needed. Finding the appropriate parameter can be achieved in the similar way by finding the elbow point as mentioned in Section~\ref{subsec:KMeansIssues}. The user can pick a number for $MinPts$ first. Then, for each point, the distance from its $kth$ nearest neighbour is computed. After sorting these distances in descending order and plot them, a graph called $sorted$ \id{k-dist} $graph$ can be obtained. This graph reveals insights about the density distribution of the whole dataset reflected in how the \id{k-dist} varies. Then the $\epsilon$ can be set to the value corresponding to the elbow point. This heuristic works well as the graph won't differ too much for $k > 4$. An illustration of this approach is shown in Figure~\ref{fig:DBSCANParameter}.~\cite{ester1996density}
 
 \begin{figure}
 	\begin{center}
 		\includegraphics[width=\textwidth]{images/DBSCANParameter.png}
-		\caption{Illustration of the heuristic parameter choosing approach for DBSCAN. (a)-(c) illustrates clustering results obtained by using different $Eps$. Each cluster is painted with a different color. Core points are represented using larger circles while border points are represented using smaller circles. Black small circles represent outliers. In (a), very few points are labelled as noise and the bottom two clusters are not distinguished. In (b), the result is more reasonable and can be considered as optimal. In (c), too many points are labelled as noise and more than 3 clusters are reported. According to the \id{k-dist graph} shown in (d), 0.2 should be the best value for $Eps$, which corresponds to the result in (b).}
+		\caption{Illustration of the heuristic parameter choosing approach for DBSCAN. (a)-(c) illustrates clustering results obtained by using different $\epsilon$. Each cluster is painted with a different color. Core points are represented using larger circles while border points are represented using smaller circles. Black small circles represent outliers. In (a), very few points are labelled as noise and the bottom two clusters are not distinguished. In (b), the result is more reasonable and can be considered as optimal. In (c), too many points are labelled as noise and more than 3 clusters are reported. According to the \id{k-dist graph} shown in (d), 0.2 should be the best value for $\epsilon$, which corresponds to the result in (b).}
 		\label{fig:DBSCANParameter}
 	\end{center}
 \end{figure}
